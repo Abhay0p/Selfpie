@@ -1,4 +1,4 @@
-# 🛒 SELFPIE: Universal Self-Checkout & Flash Pickup
+#  SELFPIE: Universal Self-Checkout & Flash Pickup
 
 **SELFPIE** is a full-stack solution designed to eliminate checkout queues in the Indian retail market. It offers two primary modes: **Flash Pickup** for remote ordering via handwritten lists and **In-Store Self-Checkout** for scanning barcodes on the go.
 
