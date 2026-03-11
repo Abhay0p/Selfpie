@@ -1,0 +1,8 @@
+node_modules/
+selfpie-frontend/node_modules/
+selfpie-backend/node_modules/
+.env
+selfpie-frontend/.env
+selfpie-backend/.env
+dist/
+.DS_Store
