@@ -1,73 +1,50 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config();
+const Shop = require('./models/Shop'); // Adjust path if needed
+const Product = require('./models/product'); // Adjust path if needed
+require('dotenv').config(); 
 
-const Shop = mongoose.model('Shop', new mongoose.Schema({
-  shopName: String,
-  category: String,
-  location: { type: { type: String, default: 'Point' }, coordinates: [Number] }
-}).index({ location: '2dsphere' }));
-
-const Product = mongoose.model('Product', new mongoose.Schema({
-  shopId: mongoose.Schema.Types.ObjectId,
-  name: String,
-  price: Number,
-  stock: Number,
-  barcode: String
-}));
+const products = [
+  // Dairy & Bread
+  { name: "Amul Taaza Milk 1L", price: 66, category: "Dairy", barcode: "8901231779696" },
+  { name: "Harvest Gold White Bread", price: 45, category: "Bakery", barcode: "8901063024722" },
+  { name: "Amul Butter 100g", price: 58, category: "Dairy", barcode: "8901231761615" },
+  
+  // Snacks & Munchies
+  { name: "Lay's Classic Salted", price: 20, category: "Snacks", barcode: "8901491101833" },
+  { name: "Kurkure Masala Munch", price: 20, category: "Snacks", barcode: "8901491503057" },
+  { name: "Doritos Cheese Nachos", price: 50, category: "Snacks", barcode: "8901491000655" },
+  
+  // Instant Food
+  { name: "Maggi Masala Noodles 70g", price: 14, category: "Instant", barcode: "8901058000106" },
+  { name: "Top Ramen Curry", price: 15, category: "Instant", barcode: "8901058860601" },
+  
+  // Beverages
+  { name: "Coca-Cola 750ml", price: 45, category: "Beverages", barcode: "5449000000996" },
+  { name: "Red Bull Energy Drink", price: 125, category: "Beverages", barcode: "9002490100070" },
+  { name: "Bisleri Water 1L", price: 20, category: "Beverages", barcode: "8906017290021" }
+];
 
 const seedDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    
-    await Shop.deleteMany({});
+    console.log("Connected to MongoDB for Seeding...");
+
+    // 1. Find your shop (or create one if it doesn't exist)
+    // Replace 'YOUR_SHOP_ID_HERE' with your actual Atlas ID
+    const shopId = "YOUR_SHOP_ID_HERE"; 
+
+    // 2. Clear existing products to avoid duplicates
     await Product.deleteMany({});
+    console.log("Cleared old products.");
 
-    const shopsToCreate = [
-      {
-        shopName: "Abhay's Supermart (Pari Chowk)",
-        category: "Grocery",
-        location: { type: "Point", coordinates: [77.5100, 28.4670] }
-      },
-      {
-        shopName: "Mother Dairy (Alpha 1)",
-        category: "Dairy",
-        location: { type: "Point", coordinates: [77.5050, 28.4750] }
-      },
-      {
-        shopName: "Quick Pick (Knowledge Park)",
-        category: "Convenience",
-        location: { type: "Point", coordinates: [77.4850, 28.4600] }
-      },
-      {
-        shopName: "Abhay's Flagship Store",
-        category: "Supermarket",
-        location: { type: "Point", coordinates: [77.4977, 28.4744] }
-      },
-      { shopName: "Bennett University", category: "Grocery",
-         location: { type: "Point", coordinates: [77.5843, 28.4506] } }
+    // 3. Attach shopId to each product and save
+    const productsWithShop = products.map(p => ({ ...p, shopId }));
+    await Product.insertMany(productsWithShop);
 
-    ];
-
-    const createdShops = await Shop.insertMany(shopsToCreate);
-    console.log(`✅ ${createdShops.length} Shops Created!`);
-
-    // 2. Add products to the first shop (Flagship Store)
-    const products = [
-      { shopId: createdShops[3]._id, name: "Amul Milk 1L", price: 66, stock: 50, barcode: "12345" },
-      { shopId: createdShops[3]._id, name: "Mother Dairy Bread", price: 40, stock: 30, barcode: "67890" },
-      { shopId: createdShops[3]._id, name: "Lays Blue Chips", price: 20, stock: 100, barcode: "11223" },
-      { shopId: createdShops[3]._id, name: "Maggi 2-Min Noodles", price: 14, stock: 200, barcode: "44556" },
-      { shopId: createdShops[3]._id, name: "Aashirvaad Atta 5kg", price: 260, stock: 15, barcode: "77889" }
-    ];
-
-    await Product.insertMany(products);
-    console.log("✅ Products added to Flagship Store!");
-
-    console.log("🚀 Database Seeded Successfully!");
+    console.log(`Successfully added ${productsWithShop.length} products to Shop ${shopId}!`);
     process.exit();
-  } catch (error) {
-    console.error("❌ Seeding Error:", error);
+  } catch (err) {
+    console.error("Seeding Error:", err);
     process.exit(1);
   }
 };

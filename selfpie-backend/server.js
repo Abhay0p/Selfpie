@@ -39,7 +39,8 @@ const Product = mongoose.model('Product', new mongoose.Schema({
   name: String,
   price: Number,
   stock: Number,
-  barcode: String
+  barcode: String,
+  category: String
 }));
 
 const Order = mongoose.model('Order', new mongoose.Schema({
@@ -53,67 +54,86 @@ const Order = mongoose.model('Order', new mongoose.Schema({
       quantity: { type: Number, default: 1 }
     }
   ],
-  totalAmount: Number,
-  status: { type: String, default: 'pending' }, 
+  totalPrice: Number, // Switched from totalAmount to match frontend CheckoutSummary
+  status: { type: String, default: 'Pending' }, // Casing matched for frontend
   isSelfCheckout: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 }));
 
 // --- Routes ---
 
-// 1. Discovery (500km radius for stable testing)
+// 1. Discovery (Infinity Search)
 app.get('/api/shops/nearby', async (req, res) => {
   try {
-    // This finds EVERY shop in your database, regardless of location
     const shops = await Shop.find({}); 
     res.json(shops);
   } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// 2. Product Search (Blinkit & Flash Pickup)
+app.get('/api/products/search', async (req, res) => {
+  const { shopId, query, barcode } = req.query;
+  try {
+    let filter = { shopId };
+    if (barcode) {
+      filter.barcode = barcode;
+    } else if (query) {
+      filter.name = { $regex: query, $options: 'i' }; 
+    }
+    const products = await Product.find(filter);
+    res.json(products);
+  } catch (err) {
     res.status(500).json(err);
   }
-});
+}); 
 
-// 2. Flash Pickup OCR Search
-app.post('/api/flash-pickup/search', async (req, res) => {
-  const { shopId, items } = req.body; 
-  try {
-    const foundProducts = await Product.find({
-      shopId: shopId,
-      name: { $in: items.map(i => new RegExp(i, 'i')) } 
-    });
-    res.json(foundProducts);
-  } catch (err) {
-    res.status(500).json({ error: "Search failed" });
-  }
-});
-
-// 3. Barcode Scanner Route
-app.get('/api/products/scan/:barcode', async (req, res) => {
-  const { shopId } = req.query;
-  try {
-    const product = await Product.findOne({ 
-      barcode: req.params.barcode, 
-      shopId: shopId 
-    });
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ message: "Product not found in this shop" });
-    }
-  } catch (err) {
-    res.status(500).json({ error: "Scanner lookup failed" });
-  }
-});
-
-// 4. Create Order (For both Flash Pickup & Self-Checkout)
-app.post('/api/orders/create', async (req, res) => {
+// 3. Create Order
+app.post('/api/orders', async (req, res) => {
   try {
     const newOrder = new Order(req.body);
-    await newOrder.save();
-    res.json({ success: true, orderId: newOrder._id });
+    const savedOrder = await newOrder.save();
+    res.json(savedOrder);
   } catch (err) {
     res.status(500).json({ error: "Order creation failed" });
   }
 });
 
+// 4. Single Order Lookup (For the Silent Poller in App.jsx)
+app.get('/api/orders/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// 5. Merchant: Get Shop Orders
+app.get('/api/orders/shop/:shopId', async (req, res) => {
+  try {
+    const orders = await Order.find({ shopId: req.params.shopId }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// 6. Merchant: Update Status (The Trigger for Notifications)
+app.patch('/api/orders/:orderId', async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { status: req.body.status },
+      { new: true }
+    );
+    res.json(updatedOrder);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
