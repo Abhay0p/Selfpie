@@ -36,10 +36,28 @@
 
 ```text
 PROJECT-SELFPIE/
-├── selfpie-backend/     # API & MongoDB Models
-│   ├── seed.js          # DB initialization script
-│   └── server.js        # API entry point
-└── selfpie-frontend/    # React/Vite Application
-    ├── src/components/  # Tesseract, Scanner, Discovery
-    ├── src/utils/       # Location/Distance logic
-    └── App.jsx          # Main App Logic
+├── selfpie-backend/           
+│   ├── src/
+│   │   ├── config/          # Database connection & Environment configs
+│   │   ├── controllers/     # Logic for Orders, Products, and Shops
+│   │   ├── middleware/      # Auth (JWT) & Error handling
+│   │   ├── models/          # Mongoose Schemas (Shop, Product, Order)
+│   │   ├── routes/          # Clean API endpoints (e.g., /api/v1/orders)
+│   │   └── services/        # External logic (UPI Integration, SMS, OCR)
+│   ├── .env                 # Secret Keys (Don't push to GitHub!)
+│   ├── seed.js              # Development data script
+│   └── server.js            # Minimalistic entry point
+├── selfpie-frontend/          
+│   ├── src/
+│   │   ├── api/             # Axios instances & API call central (Industry Standard)
+│   │   ├── components/      
+│   │   │   ├── common/      # Reusable UI (Buttons, Inputs, Loaders)
+│   │   │   ├── shop/        # ShopDiscovery, InventoryGrid
+│   │   │   └── checkout/    # Tesseract, HandoverScanner, Summary
+│   │   ├── hooks/           # Custom React hooks (e.g., useGeolocation, useOrderPoller)
+│   │   ├── store/           # Global state (Redux or Zustand)
+│   │   ├── layouts/         # Navbar/Footer wrappers
+│   │   └── utils/           # Helper functions (Currency formatter, Date logic)
+│   ├── App.jsx              # Main Router & Global Providers
+│   └── main.jsx             
+└── README.md                # Professional Documentation
