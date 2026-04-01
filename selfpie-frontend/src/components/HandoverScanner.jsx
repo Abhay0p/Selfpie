@@ -37,5 +37,4 @@ const HandoverScanner = ({ onScanSuccess, onClose }) => {
   );
 };
 
-// THIS IS THE LINE VITE IS COMPLAINING ABOUT:
 export default HandoverScanner;

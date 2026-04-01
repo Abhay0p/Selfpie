@@ -10,7 +10,6 @@ const SelfCheckout = ({ selectedShopId, onAddToCart }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Hits your backend search endpoint
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/search?shopId=${selectedShopId}`);
         setProducts(res.data);
       } catch (err) {
@@ -56,8 +55,6 @@ const SelfCheckout = ({ selectedShopId, onAddToCart }) => {
           </button>
         )}
       </div>
-
-      {/* Zomato-style Prep Time Banner */}
       <div className="flex items-center justify-between mb-6 bg-blue-50 p-4 rounded-2xl border border-blue-100 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="bg-white p-2 rounded-full shadow-sm">

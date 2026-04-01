@@ -1,138 +1,111 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { X, ReceiptText, Clock, ShoppingBag, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBasket, Smartphone, CreditCard } from 'lucide-react';
 
-const CheckoutSummary = ({ cart, shop, onClose, onOrderPlaced, onClearCart }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentDone, setPaymentDone] = useState(false);
+const CheckoutSummary = ({ cart, shop, updateCart, onOrderPlaced, onClose }) => {
+  const [step, setStep] = useState('summary'); // 'summary' or 'payment'
+  const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  const total = cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
-
-  const handlePlaceOrder = async () => {
-    setIsProcessing(true);
-    
-    // Create the order object for the backend
-    const orderData = {
-      shopId: shop._id,
-      items: cart,
-      totalPrice: total,
-      customerId: "User_Abhay", // Mock user ID for now
-      status: 'Pending'
-    };
-
+  const handleConfirmOrder = async () => {
     try {
-      // 1. Send order to MongoDB
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData);
+      const orderData = {
+        shopId: shop._id,
+        items: cart.map(item => ({ 
+          name: item.name, 
+          quantity: item.quantity, 
+          price: item.price 
+        })),
+        total: totalPrice,
+        status: 'Pending'
+      };
       
-      // 2. Mock UPI Payment Delay
-      setTimeout(() => {
-        setPaymentDone(true);
-        setIsProcessing(false);
-        
-        // 3. Notify App.jsx to start the Poller/Tracker
-        onOrderPlaced(res.data._id); 
-      }, 2000);
-
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData);
+      onOrderPlaced(res.data._id); // Send ID back to App.jsx to start polling
     } catch (err) {
-      console.error("Order failed:", err);
-      alert("Something went wrong. Check if backend is running.");
-      setIsProcessing(false);
+      alert("Failed to place order. Check console.");
+      console.error(err);
     }
   };
 
-  if (paymentDone) {
-    return (
-      <div className="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
-          <ShieldCheck size={48} className="text-green-600" />
-        </div>
-        <h2 className="text-3xl font-black text-zinc-900 italic uppercase tracking-tighter">Payment Verified</h2>
-        <p className="text-zinc-500 mt-2 mb-8 font-medium">Your order has been sent to <br/> <span className="text-zinc-900 font-bold">{shop.shopName}</span></p>
-        
-        <div className="w-full bg-zinc-50 border border-zinc-100 rounded-3xl p-6 mb-10">
-          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4">Pickup Instructions</p>
-          <p className="text-sm text-zinc-700 leading-relaxed">
-            Please wait for the <b>"Ready"</b> notification. Once ready, head to the counter and scan the shopkeeper's QR code.
-          </p>
-        </div>
-
-        <button 
-          onClick={onClose}
-          className="w-full bg-zinc-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all"
-        >
-          Track My Order
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center">
-      <div className="bg-white w-full max-w-md rounded-t-[40px] p-6 animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end justify-center">
+      <div className="w-full max-w-2xl bg-white rounded-t-[40px] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-black italic flex items-center gap-2">
-            <ReceiptText className="text-blue-600" /> BILLING
-          </h2>
-          <button onClick={onClose} className="bg-zinc-100 p-2 rounded-full text-zinc-500 hover:bg-zinc-200 transition-colors">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-3">
+            <ShoppingBasket className="text-blue-600" />
+            <h2 className="text-xl font-black italic uppercase tracking-tighter">Your Basket</h2>
+          </div>
+          <button onClick={onClose} className="p-2 bg-zinc-100 rounded-full"><X size={20}/></button>
         </div>
 
-        {/* Item List */}
-        <div className="space-y-4 mb-8">
-          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest px-1">Items in Cart</p>
-          <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-            {cart.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center bg-zinc-50/50 p-3 rounded-2xl">
-                <div>
-                  <p className="font-bold text-sm text-zinc-900">{item.name}</p>
-                  <p className="text-[10px] font-black text-zinc-400 uppercase">Qty: {item.quantity || 1}</p>
+        {step === 'summary' ? (
+          <>
+            {/* Cart Items */}
+            <div className="space-y-4 mb-8">
+              {cart.map((item) => (
+                <div key={item._id} className="flex justify-between items-center p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm text-zinc-800">{item.name}</h4>
+                    <p className="text-[10px] font-black text-blue-600">₹{item.price * item.quantity}</p>
+                  </div>
+                  
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-4 bg-white border border-zinc-200 p-1 rounded-xl">
+                    <button onClick={() => updateCart(item, 'decrease')} className="p-1 text-zinc-400 hover:text-red-500"><Minus size={14}/></button>
+                    <span className="text-xs font-black w-4 text-center">{item.quantity}</span>
+                    <button onClick={() => updateCart(item, 'add')} className="p-1 text-zinc-400 hover:text-blue-600"><Plus size={14}/></button>
+                  </div>
                 </div>
-                <p className="font-black text-zinc-900">₹{item.price * (item.quantity || 1)}</p>
+              ))}
+            </div>
+
+            <div className="border-t border-zinc-100 pt-6 mb-8">
+              <div className="flex justify-between items-center font-black text-lg">
+                <span>Grand Total</span>
+                <span className="text-blue-600">₹{totalPrice}</span>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Bill Breakdown */}
-        <div className="bg-blue-50/50 p-6 rounded-[32px] mb-8 border border-blue-100">
-          <div className="flex justify-between text-sm mb-2 text-zinc-600 font-bold">
-            <span>Subtotal</span>
-            <span>₹{total}</span>
-          </div>
-          <div className="flex justify-between text-sm mb-4 text-green-600 font-bold">
-            <span>Pickup Handling</span>
-            <span className="uppercase italic text-[10px] bg-green-100 px-2 py-0.5 rounded-md">Free</span>
-          </div>
-          <div className="flex justify-between border-t border-blue-200 pt-4 mt-2">
-            <span className="text-zinc-900 font-black text-xl italic uppercase tracking-tighter">Total Amount</span>
-            <span className="text-blue-600 font-black text-2xl">₹{total}</span>
-          </div>
-        </div>
+            <button 
+              onClick={() => setStep('payment')}
+              className="w-full bg-zinc-900 text-white py-5 rounded-[24px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl"
+            >
+              <Smartphone size={20} /> Proceed to Pay
+            </button>
+          </>
+        ) : (
+          <div className="text-center">
+            <h3 className="font-black text-sm uppercase text-zinc-400 mb-6 tracking-[0.2em]">UPI Payment Verification</h3>
+            
+            {/* Static QR Image - Place payment-qr.png in your /public folder */}
+            <div className="bg-blue-50 p-6 rounded-[32px] border-2 border-dashed border-blue-200 mb-8 flex flex-col items-center">
+              <img 
+                src="/payment-qr.png" 
+                alt="Payment QR" 
+                className="w-48 h-48 object-contain rounded-2xl border-4 border-white shadow-lg mb-4"
+                onError={(e) => e.target.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=YOUR_UPI_ID@okicici"}
+              />
+              <p className="text-[10px] font-black text-blue-800 uppercase italic">Scan to pay exactly ₹{totalPrice}</p>
+            </div>
 
-        <button 
-          onClick={handlePlaceOrder}
-          disabled={isProcessing}
-          className={`w-full py-5 rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 ${
-            isProcessing ? 'bg-zinc-200 text-zinc-400' : 'bg-blue-600 text-white shadow-blue-100'
-          }`}
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="animate-spin" size={20} /> VERIFYING UPI...
-            </>
-          ) : (
-            <>
-              PAY ₹{total} <ArrowRight size={20} />
-            </>
-          )}
-        </button>
-        
-        <p className="text-center mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-          Secured by SelfPie Payments
-        </p>
+            <div className="space-y-3">
+              <button 
+                onClick={handleConfirmOrder}
+                className="w-full bg-blue-600 text-white py-5 rounded-[24px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"
+              >
+                I Have Paid (Confirm Order)
+              </button>
+              <button 
+                onClick={() => setStep('summary')}
+                className="w-full text-zinc-400 font-bold text-xs uppercase py-2"
+              >
+                Go Back
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

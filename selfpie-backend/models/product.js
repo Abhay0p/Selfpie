@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-  shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
-  name: { type: String, required: true },
+const ProductSchema = new mongoose.Schema({
+  shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
+  name: String,
+  price: Number,
+  stock: Number,
   category: String,
-  price: { type: Number, required: true },
-  barcode: { type: String, unique: true }, // For In-Store Scanning
-  stock: { type: Number, default: 100 }
+  barcode: String
 });
 
-// Add a text index so we can search by name for Flash Pickup
-productSchema.index({ name: 'text' });
-
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model('Product', ProductSchema);

@@ -8,7 +8,6 @@ const ShopDetail = ({ shop, onBack }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [cart, setCart] = useState([]);
 
-  // --- Flash Pickup: OCR Logic ---
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;

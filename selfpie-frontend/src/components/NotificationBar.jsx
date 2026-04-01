@@ -5,7 +5,6 @@ const NotificationBar = ({ status }) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Only show if status is Preparing or Ready
     if (status && (status === 'Preparing' || status === 'Ready')) {
       setVisible(true);
       const timer = setTimeout(() => setVisible(false), 6000); 

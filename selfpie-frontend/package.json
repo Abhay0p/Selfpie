@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@tailwindcss/vite": "^4.2.1",
     "axios": "^1.13.6",
     "framer-motion": "^12.35.2",
     "lucide-react": "^0.577.0",
@@ -17,7 +19,10 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-qr-barcode-scanner": "^2.1.23",
-    "tesseract.js": "^7.0.0"
+    "react-qr-code": "^2.0.18",
+    "socket.io-client": "^4.8.3",
+    "tesseract.js": "^7.0.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

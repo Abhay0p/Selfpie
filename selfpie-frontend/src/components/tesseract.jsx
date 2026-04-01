@@ -1,107 +1,127 @@
 import React, { useState } from 'react';
 import Tesseract from 'tesseract.js';
 import axios from 'axios';
-import { Camera, Zap, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Camera, Loader2, Plus, Sparkles, CheckCircle2, X } from 'lucide-react';
 
-const FlashPickup = ({ selectedShopId, onAddToCart }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+const FlashPickup = ({ selectedShopId, onAddToCart, onClose }) => {
+  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setIsProcessing(true);
-    setStatus("Reading your list...");
-    setProgress(0);
+    setImagePreview(URL.createObjectURL(file));
+    setLoading(true);
+    setStatus("Reading List...");
 
     try {
-      // 1. OCR Processing
-      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.floor(m.progress * 100));
-          }
-        },
-      });
-
-      console.log("Extracted Text:", text);
-      setStatus("Matching items with shop inventory...");
-
-      // 2. Clean and Split Text
-      const lines = text.split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 2);
-
-      if (lines.length === 0) {
-        setStatus("Could not read the list. Try a clearer photo.");
-        setIsProcessing(false);
+      // 1. OCR Step
+      const { data: { text } } = await Tesseract.recognize(file, 'eng');
+      
+      if (!text.trim()) {
+        setStatus("No text found.");
+        setLoading(false);
         return;
       }
 
-      // 3. API Match & Add to Cart
-      let matchCount = 0;
-      for (const item of lines) {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/products/search?shopId=${selectedShopId}&query=${item}`
-        );
+      setStatus("AI Matching...");
 
-        if (response.data && response.data.length > 0) {
-          onAddToCart(response.data[0]);
-          matchCount++;
-        }
-      }
+      // 2. AI Mapping Step - Backend now handles inventory fetching
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/ai/smart-match`, {
+        rawText: text,
+        shopId: selectedShopId
+      });
 
-      setStatus(matchCount > 0 
-        ? `Added ${matchCount} items to your cart!` 
-        : "List read, but no exact matches in this shop.");
-
+      // Ensure we always have an array, even if AI fails
+      setAiSuggestions(Array.isArray(res.data) ? res.data : []);
+      setStatus("Success!");
     } catch (err) {
-      console.error("OCR Error:", err);
-      setStatus("Error processing image.");
+      console.error("Scanning Error:", err);
+      setStatus("Scan Failed");
+      setAiSuggestions([]);
     } finally {
-      setIsProcessing(false);
-      setProgress(0);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center py-8 bg-white rounded-[32px] shadow-sm border border-zinc-100 px-6">
-      <div className="text-center mb-8">
-        <div className="bg-yellow-100 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3">
-          <Zap className="text-yellow-600 fill-yellow-600" size={24} />
-        </div>
-        <h3 className="text-2xl font-black text-zinc-900 italic uppercase tracking-tighter">Flash Pickup</h3>
-        <p className="text-zinc-500 text-xs font-bold mt-1">Upload list. Skip the aisles.</p>
+    <div className="w-full max-w-2xl mx-auto space-y-8 p-4">
+      {/* Upload Section */}
+      <div className="bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-[40px] p-10 flex flex-col items-center text-center">
+        {!imagePreview ? (
+          <>
+            <div className="bg-blue-600 p-5 rounded-3xl text-white mb-4 shadow-xl shadow-blue-200">
+              <Camera size={32} />
+            </div>
+            <h3 className="text-lg font-black text-zinc-800 uppercase tracking-tighter">Flash Pickup</h3>
+            <p className="text-xs text-zinc-500 font-bold mt-2 mb-6 px-4">
+              Upload a photo of your handwritten list.
+            </p>
+            <label className="bg-zinc-900 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest cursor-pointer active:scale-95 transition-all">
+              Choose Photo
+              <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+            </label>
+          </>
+        ) : (
+          <div className="relative w-full max-w-[200px]">
+            <img src={imagePreview} alt="Preview" className="rounded-2xl shadow-lg border-4 border-white grayscale-[50%]" />
+            {loading && (
+              <div className="absolute inset-0 bg-black/40 rounded-2xl flex flex-col items-center justify-center text-white p-4">
+                <Loader2 className="animate-spin mb-2" />
+                <span className="text-[10px] font-black uppercase tracking-tighter">{status}</span>
+              </div>
+            )}
+            {!loading && (
+              <button 
+                onClick={() => {setImagePreview(null); setAiSuggestions([]);}}
+                className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      <label className={`w-full h-64 border-4 border-dashed rounded-[40px] flex flex-col items-center justify-center cursor-pointer transition-all ${
-        isProcessing ? 'border-blue-500 bg-blue-50' : 'border-zinc-100 hover:border-blue-400 bg-zinc-50'
-      }`}>
-        {isProcessing ? (
-          <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-2" />
-            <span className="font-black text-blue-600 text-xl">{progress}%</span>
-            <span className="text-[10px] font-bold text-blue-400 uppercase">Analyzing handwriting</span>
+      {/* AI Suggestions Section - Added Array check to prevent White Screen */}
+      {Array.isArray(aiSuggestions) && aiSuggestions.length > 0 && (
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+          <div className="flex items-center gap-2 px-2">
+            <Sparkles size={16} className="text-blue-600" />
+            <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">Smart AI Matches</h3>
           </div>
-        ) : (
-          <>
-            <div className="bg-blue-600 p-4 rounded-full mb-3 text-white shadow-lg shadow-blue-200">
-              <Camera size={28} />
-            </div>
-            <span className="font-black text-zinc-800 uppercase text-xs tracking-widest">Snap Handwritten List</span>
-          </>
-        )}
-        <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={isProcessing} />
-      </label>
 
-      {status && (
-        <div className={`mt-6 w-full p-4 rounded-2xl flex items-center gap-3 text-xs font-black uppercase tracking-tight ${
-          status.includes("Added") ? 'bg-green-50 text-green-700' : 'bg-zinc-100 text-zinc-600'
-        }`}>
-          {status.includes("Added") ? <CheckCircle size={16} /> : <FileText size={16} />}
-          {status}
+          <div className="grid grid-cols-1 gap-3">
+            {aiSuggestions.map((item, i) => (
+              <div key={i} className="bg-white border border-zinc-100 p-5 rounded-[32px] flex justify-between items-center shadow-sm hover:shadow-md transition-all">
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-zinc-400 font-bold italic line-clamp-1">"{item.userInput}"</span>
+                    <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Matched</span>
+                  </div>
+                  <h4 className="font-black text-zinc-800 text-sm mt-1">{item.match}</h4>
+                  <p className="text-blue-600 font-black text-xs">₹{item.price}</p>
+                </div>
+
+                <button 
+                  onClick={() => onAddToCart({ _id: item.id, name: item.match, price: item.price })}
+                  className="ml-4 bg-zinc-900 hover:bg-blue-600 text-white p-4 rounded-2xl active:scale-90 transition-all shadow-lg"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-6 bg-blue-50 rounded-[32px] border border-blue-100 flex items-center gap-4 text-left">
+            <CheckCircle2 size={24} className="text-blue-600 flex-shrink-0" />
+            <p className="text-[10px] font-bold text-blue-800 leading-relaxed uppercase tracking-tight">
+              Please verify items before proceeding to checkout.
+            </p>
+          </div>
         </div>
       )}
     </div>

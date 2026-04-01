@@ -1,52 +1,52 @@
 const mongoose = require('mongoose');
-const Shop = require('./models/Shop'); // Adjust path if needed
-const Product = require('./models/product'); // Adjust path if needed
-require('dotenv').config(); 
+const dotenv = require('dotenv');
+dotenv.config();
 
-const products = [
-  // Dairy & Bread
-  { name: "Amul Taaza Milk 1L", price: 66, category: "Dairy", barcode: "8901231779696" },
-  { name: "Harvest Gold White Bread", price: 45, category: "Bakery", barcode: "8901063024722" },
-  { name: "Amul Butter 100g", price: 58, category: "Dairy", barcode: "8901231761615" },
-  
-  // Snacks & Munchies
-  { name: "Lay's Classic Salted", price: 20, category: "Snacks", barcode: "8901491101833" },
-  { name: "Kurkure Masala Munch", price: 20, category: "Snacks", barcode: "8901491503057" },
-  { name: "Doritos Cheese Nachos", price: 50, category: "Snacks", barcode: "8901491000655" },
-  
-  // Instant Food
-  { name: "Maggi Masala Noodles 70g", price: 14, category: "Instant", barcode: "8901058000106" },
-  { name: "Top Ramen Curry", price: 15, category: "Instant", barcode: "8901058860601" },
-  
-  // Beverages
-  { name: "Coca-Cola 750ml", price: 45, category: "Beverages", barcode: "5449000000996" },
-  { name: "Red Bull Energy Drink", price: 125, category: "Beverages", barcode: "9002490100070" },
-  { name: "Bisleri Water 1L", price: 20, category: "Beverages", barcode: "8906017290021" }
-];
+const Shop = mongoose.models.Shop || mongoose.model('Shop', new mongoose.Schema({ 
+  shopName: String, category: String, location: { lat: Number, lng: Number } 
+}));
+const Product = mongoose.models.Product || mongoose.model('Product', new mongoose.Schema({ 
+  shopId: mongoose.Schema.Types.ObjectId, name: String, price: Number, stock: Number, barcode: String 
+}));
 
-const seedDB = async () => {
+const seed = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB for Seeding...");
-
-    // 1. Find your shop (or create one if it doesn't exist)
-    // Replace 'YOUR_SHOP_ID_HERE' with your actual Atlas ID
-    const shopId = "YOUR_SHOP_ID_HERE"; 
-
-    // 2. Clear existing products to avoid duplicates
+    await Shop.deleteMany({});
     await Product.deleteMany({});
-    console.log("Cleared old products.");
 
-    // 3. Attach shopId to each product and save
-    const productsWithShop = products.map(p => ({ ...p, shopId }));
-    await Product.insertMany(productsWithShop);
+    // --- SHOP 1: MART ---
+    const mart = await new Shop({ 
+      shopName: "Abhay's Campus Mart", category: "Grocery", location: { lat: 28.4744, lng: 77.5040 } 
+    }).save();
 
-    console.log(`Successfully added ${productsWithShop.length} products to Shop ${shopId}!`);
-    process.exit();
-  } catch (err) {
-    console.error("Seeding Error:", err);
-    process.exit(1);
-  }
+    // --- SHOP 2: STATIONERY ---
+    const penShop = await new Shop({ 
+      shopName: "Student Point Stationery", category: "Education", location: { lat: 28.4750, lng: 77.5030 } 
+    }).save();
+
+    // --- SHOP 3: BAKERY ---
+    const bakery = await new Shop({ 
+      shopName: "Fresh Bakes & Coffee", category: "Food & Cafe", location: { lat: 28.4730, lng: 77.5050 } 
+    }).save();
+
+    await Product.insertMany([
+      // Mart Items
+      { shopId: mart._id, name: "Maggi Masala", price: 14, stock: 100, barcode: "12345" },
+      { shopId: mart._id, name: "Amul Milk 500ml", price: 33, stock: 50, barcode: "67890" },
+      { shopId: mart._id, name: "Coke 750ml", price: 45, stock: 30, barcode: "11223" },
+      // Stationery Items
+      { shopId: penShop._id, name: "Classmate Notebook", price: 60, stock: 40, barcode: "55555" },
+      { shopId: penShop._id, name: "Parker Vector Pen", price: 250, stock: 10, barcode: "66666" },
+      { shopId: penShop._id, name: "A4 Paper Rim", price: 350, stock: 25, barcode: "77777" },
+      // Bakery Items
+      { shopId: bakery._id, name: "Chocolate Muffin", price: 80, stock: 12, barcode: "88888" },
+      { shopId: bakery._id, name: "Hot Cappuccino", price: 120, stock: 99, barcode: "99999" },
+      { shopId: bakery._id, name: "Paneer Patties", price: 35, stock: 20, barcode: "00000" }
+    ]);
+
+    console.log("✅ 3 Shops & Inventories Seeded Successfully!");
+  } catch (err) { console.error(err); }
+  finally { mongoose.connection.close(); process.exit(); }
 };
-
-seedDB();
+seed();
