@@ -35,29 +35,74 @@
 ##  Project Structure
 
 ```text
-PROJECT-SELFPIE/
-├── selfpie-backend/           
-│   ├── src/
-│   │   ├── config/          # Database connection & Environment configs
-│   │   ├── controllers/     # Logic for Orders, Products, and Shops
-│   │   ├── middleware/      # Auth (JWT) & Error handling
-│   │   ├── models/          # Mongoose Schemas (Shop, Product, Order)
-│   │   ├── routes/          # Clean API endpoints (e.g., /api/v1/orders)
-│   │   └── services/        # External logic (UPI Integration, SMS, OCR)
-│   ├── .env                 # Secret Keys (Don't push to GitHub!)
-│   ├── seed.js              # Development data script
-│   └── server.js            # Minimalistic entry point
-├── selfpie-frontend/          
-│   ├── src/
-│   │   ├── api/             # Axios instances & API call central (Industry Standard)
-│   │   ├── components/      
-│   │   │   ├── common/      # Reusable UI (Buttons, Inputs, Loaders)
-│   │   │   ├── shop/        # ShopDiscovery, InventoryGrid
-│   │   │   └── checkout/    # Tesseract, HandoverScanner, Summary
-│   │   ├── hooks/           # Custom React hooks (e.g., useGeolocation, useOrderPoller)
-│   │   ├── store/           # Global state (Redux or Zustand)
-│   │   ├── layouts/         # Navbar/Footer wrappers
-│   │   └── utils/           # Helper functions (Currency formatter, Date logic)
-│   ├── App.jsx              # Main Router & Global Providers
-│   └── main.jsx             
-└── README.md                # Professional Documentation
+d:\ProjectSelfpie\
+├── 📁 backend\
+│   ├── 📁 controllers\
+│   │   ├── SpAbhay_aiMatcher.js
+│   │   ├── SpAbhay_authController.js
+│   │   └── SpAbhay_coreController.js
+│   ├── 📁 middleware\
+│   │   └── SpAbhay_requireAuth.js
+│   ├── 📁 models\
+│   │   ├── SpAbhay_Item.js
+│   │   ├── SpAbhay_Order.js
+│   │   └── SpAbhay_User.js
+│   ├── 📁 routes\
+│   │   ├── SpAbhay_authRoutes.js
+│   │   └── SpAbhay_coreRoutes.js
+│   ├── 📁 sockets\
+│   │   └── SpAbhay_socketManager.js
+│   ├── .env
+│   ├── Dockerfile
+│   ├── out.txt
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── seed.js
+│   ├── server.js
+│   ├── test_ai.js
+│   └── test_barcode.js
+│
+├── 📁 frontend\
+│   ├── 📁 public\
+│   ├── 📁 src\
+│   │   ├── 📁 assets\
+│   │   ├── 📁 components\
+│   │   │   ├── SpAbhay_ActiveCart.jsx
+│   │   │   ├── SpAbhay_BarcodeScanner.jsx
+│   │   │   ├── SpAbhay_CustomerDashboard.jsx
+│   │   │   ├── SpAbhay_ManualItemSelection.jsx
+│   │   │   ├── SpAbhay_MerchantDashboard.jsx
+│   │   │   ├── SpAbhay_OrderChat.jsx
+│   │   │   ├── SpAbhay_SmartScanner.jsx
+│   │   │   └── SpAbhay_StoreCheckIn.jsx
+│   │   ├── 📁 hooks\
+│   │   │   ├── useCustomerAuth.js
+│   │   │   ├── useMerchantAuth.js
+│   │   │   └── useMerchantOrders.js
+│   │   ├── 📁 store\
+│   │   │   └── SpAbhay_useCartStore.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── config.js
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── build.log
+│   ├── build.txt
+│   ├── build2.txt
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   └── vite.config.js
+│
+├── .gitignore
+├── docker-compose.yml
+├── package.json
+├── package-lock.json
+└── README.md
+
