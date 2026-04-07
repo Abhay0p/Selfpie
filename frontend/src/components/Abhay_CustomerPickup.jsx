@@ -1,18 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../store/SpAbhay_useCartStore';
 import { ShoppingBag, X, Plus, Minus, CreditCard, ChevronUp, QrCode, Clock, CheckCircle2, PackageCheck, Loader2 } from 'lucide-react';
-import SpAbhay_OrderChat from './SpAbhay_OrderChat';
+
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../config';
 
-export default function SpAbhay_ActiveCart() {
-  const { cartItems, removeFromCart, updateQuantity, clearCart, currentShopId } = useCartStore();
+export default function Abhay_CustomerPickup() {
+  const { cartItems, removeFromCart, updateQuantity, clearCart, currentShopId, activeOrderId, setActiveOrderId } = useCartStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
+  const [showGatePass, setShowGatePass] = useState(false);
+  const [pickupTime, setPickupTime] = useState('');
+  const [isLoadingOrder, setIsLoadingOrder] = useState(!!activeOrderId);
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+  const fetchActiveOrder = () => {
+    const freshOrderId = useCartStore.getState().activeOrderId;
+    if(!freshOrderId) return;
+    
+    setIsLoadingOrder(true);
+    fetch(`${API_BASE_URL}/api/orders/active`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderIdString: freshOrderId })
+    }).then(res => res.json()).then(data => {
+      if(data.success) {
+         setActiveOrder({ id: data.data.orderIdString, status: data.data.status, prepTime: data.data.estPrepTime, upiLink: '', items: data.data.items || [], shopName: data.data.shopName });
+      } else {
+         useCartStore.getState().setActiveOrderId(null);
+      }
+    }).finally(() => setIsLoadingOrder(false));
+  };
+
+  useEffect(() => {
+    if (activeOrderId && !activeOrder) fetchActiveOrder();
+  }, [activeOrderId, currentShopId]);
+
+  useEffect(() => {
+    const handleOpenGatePass = () => {
+      setShowGatePass(true);
+      fetchActiveOrder();
+    };
+    window.addEventListener('open-gate-pass', handleOpenGatePass);
+    return () => window.removeEventListener('open-gate-pass', handleOpenGatePass);
+  }, []);
 
   useEffect(() => {
     if(!activeOrder) return;
@@ -21,7 +55,12 @@ export default function SpAbhay_ActiveCart() {
     
     socket.on('order_status_changed', (data) => {
        if (data.orderId === activeOrder.id) {
-         setActiveOrder(prev => ({ ...prev, status: data.status }));
+         if (data.status === 'Completed') {
+            setActiveOrderId(null);
+            setActiveOrder(null);
+         } else {
+            setActiveOrder(prev => ({ ...prev, status: data.status }));
+         }
        }
     });
     return () => socket.disconnect();
@@ -33,12 +72,14 @@ export default function SpAbhay_ActiveCart() {
       const res = await fetch(`${API_BASE_URL}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shopId: currentShopId, items: cartItems, total: totalPrice })
+        body: JSON.stringify({ shopId: currentShopId, items: cartItems, total: totalPrice, pickupTime: pickupTime || 'As soon as possible' })
       });
       const data = await res.json();
       
       if(data.success) {
-        setActiveOrder({ id: data.orderId, status: 'Pending Payment', upiLink: data.upiLink });
+        setActiveOrder({ id: data.orderId, status: 'Pending Payment', upiLink: data.upiLink, items: cartItems });
+        setActiveOrderId(data.orderId);
+        setShowGatePass(true);
       }
     } catch(err) {
       console.error(err);
@@ -61,6 +102,7 @@ export default function SpAbhay_ActiveCart() {
      clearCart();
      const socket = io(API_BASE_URL, { transports: ['websocket'] });
      socket.emit('new_order', { orderId: activeOrder.id, shopId: currentShopId, total: totalPrice, items: cartItems });
+     fetchActiveOrder();
   };
 
   const getStatusIcon = (status) => {
@@ -70,11 +112,11 @@ export default function SpAbhay_ActiveCart() {
     return <ShoppingBag className="w-12 h-12 text-amber-500" />;
   };
 
-  if (activeOrder) {
+  if (activeOrder && showGatePass) {
     return (
       <div className="fixed inset-x-0 bottom-0 z-50 p-4 md:p-6 pb-safety flex justify-center transform transition-transform animate-in slide-in-from-bottom-24">
         <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center p-8 text-center relative max-h-[90vh] overflow-y-auto">
-          <button onClick={() => setActiveOrder(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+          <button onClick={() => setShowGatePass(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
 
           {activeOrder.status === 'Pending Payment' ? (
             <>
@@ -83,10 +125,10 @@ export default function SpAbhay_ActiveCart() {
               
               <div className="bg-slate-50 p-4 border-2 border-slate-200 rounded-3xl mb-6 shadow-inner mx-auto inline-block">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(`upi://pay?pa=abhaynarayan0001@okicici&pn=Selfpie&am=${totalPrice}&cu=INR`)}`} 
+                  src={`https://quickchart.io/qr?size=250&text=${encodeURIComponent(activeOrder.upiLink)}`} 
                   alt="UPI QR Code" 
                   className="rounded-2xl w-48 h-48 mix-blend-multiply bg-white"
-                  onError={(e) => { e.target.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=SelfpiePayment"; }}
+                  onError={(e) => { e.target.src = "https://quickchart.io/qr?size=250&text=SelfpiePayment"; }}
                 />
               </div>
               
@@ -114,18 +156,63 @@ export default function SpAbhay_ActiveCart() {
              <>
                <div className="w-full bg-gradient-to-b from-emerald-50 to-white pt-6 pb-2 rounded-2xl border-2 border-emerald-100 shadow-sm relative overflow-hidden">
                  <h2 className="text-xl font-black text-emerald-700 mx-6 border-b border-emerald-100 pb-2 border-dashed">GATE PASS READY</h2>
+                 {activeOrder.shopName && (
+                    <div className="mt-4 px-6 mb-2">
+                       <p className="font-bold text-slate-800 text-lg uppercase tracking-tight truncate border-b border-slate-200 pb-2">{activeOrder.shopName}</p>
+                    </div>
+                 )}
                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeOrder.id}&color=047857`} alt="QR" className="mx-auto my-6 mix-blend-multiply" />
                  <p className="font-mono text-emerald-800 font-bold bg-emerald-100 inline-block px-4 py-1.5 rounded-lg tracking-widest">{activeOrder.id}</p>
                  <p className="text-xs text-emerald-600 font-bold mt-4 px-6 opacity-70">Status: {activeOrder.status}</p>
                  <p className="text-xs text-slate-500 mt-2 px-6">Show prominently at gate exits to walk out.</p>
+                 {activeOrder.items && activeOrder.items.length > 0 && (
+                   <div className="mt-4 px-6 pb-4 text-left max-h-32 overflow-y-auto w-full mx-auto">
+                     <p className="text-xs font-bold text-slate-600 uppercase mb-2 border-b border-emerald-100 pb-1">Items Bought</p>
+                     <ul className="text-sm font-medium text-slate-700 space-y-1">
+                       {activeOrder.items.map((item, idx) => (
+                         <li key={idx} className="flex justify-between items-center bg-emerald-50/50 px-3 py-1 rounded-lg">
+                           <span className="truncate mr-2 flex-1">{item.name}</span>
+                           <span className="font-bold shrink-0">x{item.quantity}</span>
+                         </li>
+                       ))}
+                     </ul>
+                   </div>
+                 )}
                </div>
-               <div className="w-full mt-6"><SpAbhay_OrderChat orderId={activeOrder.id} /></div>
              </>
           ) : (
             <>
-              <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mb-6 shadow-sm">{getStatusIcon(activeOrder.status)}</div>
-              <h3 className="text-2xl font-black text-slate-900 mb-2">Order Tracking</h3>
-              <p className="font-bold text-slate-500 bg-slate-100 px-4 py-1 rounded-full">{activeOrder.status}</p>
+              <div className="w-20 h-20 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center mb-6 shadow-sm relative">
+                 <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin opacity-20"></div>
+                 {getStatusIcon(activeOrder.status)}
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">
+                 {activeOrder.status === 'Pending' ? `Expected around ${activeOrder.prepTime || 15} mins` : activeOrder.status === 'Ready for Pickup' ? 'Packed in the customer outlet' : 'Order Preparing'}
+              </h3>
+              
+              <div className="w-full bg-slate-50 p-6 rounded-2xl border border-slate-200 mt-6 relative overflow-hidden">
+                 <div className="flex justify-between items-center relative z-10 w-full px-2">
+                    <div className="flex flex-col items-center gap-2">
+                       <div className={`w-4 h-4 rounded-full ${['Pending', 'Accepted', 'Ready for Pickup'].includes(activeOrder.status) ? 'bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'bg-slate-300'}`}></div>
+                       <span className={`text-[10px] font-bold ${['Pending', 'Accepted', 'Ready for Pickup'].includes(activeOrder.status) ? 'text-indigo-600' : 'text-slate-400'}`}>Placed</span>
+                    </div>
+                    
+                    <div className={`flex-1 h-1 mx-2 rounded-full ${['Accepted', 'Ready for Pickup'].includes(activeOrder.status) ? 'bg-indigo-600' : 'bg-slate-200'}`}></div>
+                    
+                    <div className="flex flex-col items-center gap-2">
+                       <div className={`w-4 h-4 rounded-full ${['Accepted', 'Ready for Pickup'].includes(activeOrder.status) ? 'bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'bg-slate-300'}`}></div>
+                       <span className={`text-[10px] font-bold ${['Accepted', 'Ready for Pickup'].includes(activeOrder.status) ? 'text-indigo-600' : 'text-slate-400'}`}>Preparing</span>
+                    </div>
+                    
+                    <div className={`flex-1 h-1 mx-2 rounded-full ${activeOrder.status === 'Ready for Pickup' ? 'bg-indigo-600' : 'bg-slate-200'}`}></div>
+                    
+                    <div className="flex flex-col items-center gap-2">
+                       <div className={`w-4 h-4 rounded-full ${activeOrder.status === 'Ready for Pickup' ? 'bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'bg-slate-300'}`}></div>
+                       <span className={`text-[10px] font-bold ${activeOrder.status === 'Ready for Pickup' ? 'text-indigo-600' : 'text-slate-400'}`}>Packed</span>
+                    </div>
+                 </div>
+              </div>
+              <p className="font-bold text-slate-500 mt-6 tracking-wide uppercase text-xs">{activeOrder.status}</p>
             </>
           )}
         </div>
@@ -175,7 +262,12 @@ export default function SpAbhay_ActiveCart() {
               ))}
             </div>
 
-            <button onClick={handleCheckout} disabled={isCheckingOut} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200">
+            <div className="mb-6 bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+              <label className="text-sm font-bold text-slate-800 mb-2 block flex items-center gap-2"><Clock className="w-4 h-4 text-indigo-500" /> Expected Pickup Time</label>
+              <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:border-indigo-500" />
+            </div>
+
+            <button onClick={handleCheckout} disabled={isCheckingOut} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 disabled:opacity-50">
               {isCheckingOut ? <Loader2 className="w-5 h-5 mx-auto animate-spin" /> : `Checkout • ₹${totalPrice}`}
             </button>
           </div>

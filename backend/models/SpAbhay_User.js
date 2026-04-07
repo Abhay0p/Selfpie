@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'merchant'
   },
+  upiId: String,
+  prepTime: {
+    type: Number,
+    default: 15
+  },
   location: {
     lat: Number,
     lng: Number

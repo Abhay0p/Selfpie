@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Search, MapPin, Store, ChevronRight, Loader2, Sparkles, LogOut, ScanLine, ShoppingCart, AlertTriangle } from 'lucide-react';
 import SpAbhay_SmartScanner from './SpAbhay_SmartScanner';
-import SpAbhay_ActiveCart from './SpAbhay_ActiveCart';
+import Abhay_CustomerPickup from './Abhay_CustomerPickup';
 import SpAbhay_StoreCheckIn from './SpAbhay_StoreCheckIn';
 import SpAbhay_BarcodeScanner from './SpAbhay_BarcodeScanner';
 import SpAbhay_ManualItemSelection from './SpAbhay_ManualItemSelection';
@@ -10,52 +10,54 @@ import { API_BASE_URL } from '../config';
 import { useCustomerAuth } from '../hooks/useCustomerAuth';
 import { Link } from 'react-router-dom';
 
-// -- CUSTOMER AUTHENTICATION VIEW --
+//auth
 function CustomerAuthView({ auth }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await auth.login(email, password, isLogin);
   };
 
   if (localStorage.getItem('merchantToken')) {
-     return (
-       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-center p-6 mt-[-3rem]">
-         <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
-         <h2 className="text-2xl font-black text-slate-800 mb-2">You are currently a Merchant</h2>
-         <p className="text-slate-500 mb-8 max-w-sm">Please log out of the Merchant dashboard before attempting to access the Shopping interface to prevent data overlap.</p>
-         <div className="flex flex-col sm:flex-row gap-4">
-           <Link to="/merchant" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition">Return to Dashboard</Link>
-           <button onClick={() => { localStorage.removeItem('merchantToken'); localStorage.removeItem('merchantShopId'); window.location.reload(); }} className="px-6 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition">Force Logout Merchant</button>
-         </div>
-       </div>
-     );
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-center p-6 mt-[-3rem]">
+        <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
+        <h2 className="text-2xl font-black text-slate-800 mb-2">You are currently a Merchant</h2>
+        <p className="text-slate-500 mb-8 max-w-sm">Please log out of the Merchant dashboard before attempting to access the Shopping interface to prevent data overlap.</p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to="/merchant" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition">Return to Dashboard</Link>
+          <button onClick={() => { localStorage.removeItem('merchantToken'); localStorage.removeItem('merchantShopId'); window.location.reload(); }} className="px-6 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition">Force Logout Merchant</button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-[100vh] mt-[-3rem] items-center justify-center bg-slate-50 relative overflow-hidden min-h-screen">
-      <div className="bg-white/90 backdrop-blur-xl p-10 rounded-[2.5rem] shadow-2xl border border-white w-full max-w-md relative z-10">
+    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-slate-50 relative overflow-hidden p-4">
+      <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-10 rounded-[2.5rem] shadow-2xl border border-white w-full max-w-md relative z-10 m-auto">
         <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-8 shadow-lg text-white mx-auto">
-          <Camera className="w-8 h-8"/>
+          <Camera className="w-8 h-8" />
         </div>
         <h2 className="text-3xl font-black text-slate-800 text-center mb-2">{isLogin ? 'Customer Login' : 'Join SelfpieBlink'}</h2>
         <p className="text-center text-slate-500 text-sm mb-6">Skip the billing queue seamlessly.</p>
-        
+
         {auth.error && <div className="bg-rose-50 text-rose-600 text-sm p-3 rounded-lg mb-4 font-bold text-center border border-rose-100">{auth.error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required className="w-full px-5 py-4 bg-slate-100/50 focus:bg-white rounded-2xl font-medium" />
-          <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full px-5 py-4 bg-slate-100/50 focus:bg-white rounded-2xl font-medium" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full px-5 py-4 bg-slate-100/50 focus:bg-white rounded-2xl font-medium" />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full px-5 py-4 bg-slate-100/50 focus:bg-white rounded-2xl font-medium" />
           <button type="submit" disabled={auth.isLoading} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 disabled:bg-indigo-400">
             {auth.isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (isLogin ? 'Login to App' : 'Create Account')}
           </button>
           <div className="text-center text-sm font-bold text-indigo-600 cursor-pointer pt-2" onClick={() => setIsLogin(!isLogin)}>
-             {isLogin ? 'Create a new account' : 'Already have an account?'}
+            {isLogin ? 'Create a new account' : 'Already have an account?'}
           </div>
-          <Link to="/merchant" className="block text-center text-sm font-bold text-slate-400 hover:text-slate-600 mt-6 pt-4 border-t border-slate-100">Are you a Shopkeeper?</Link>
+          <Link to="/merchant" className="mt-8 flex items-center justify-center gap-2 p-4 bg-indigo-50 hover:bg-indigo-100 rounded-2xl text-indigo-700 font-black transition-all">
+            <Store className="w-5 h-5"/> Switch to Shopkeeper Mode
+          </Link>
         </form>
       </div>
     </div>
@@ -70,28 +72,28 @@ function NearbyShops({ onSelectShop }) {
 
   useEffect(() => {
     const fetchShops = (url) => {
-      fetch(url).then(res => res.json()).then(data => { if(data.success) setShops(data.data); }).finally(() => setLoading(false));
+      fetch(url).then(res => res.json()).then(data => { if (data.success) setShops(data.data); }).finally(() => setLoading(false));
     };
 
     if (navigator.geolocation) {
-       navigator.geolocation.getCurrentPosition(
-         pos => fetchShops(`${API_BASE_URL}/api/shops/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`),
-         () => fetchShops(`${API_BASE_URL}/api/shops/nearby`)
-       );
+      navigator.geolocation.getCurrentPosition(
+        pos => fetchShops(`${API_BASE_URL}/api/shops/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`),
+        () => fetchShops(`${API_BASE_URL}/api/shops/nearby`)
+      );
     } else {
-       fetchShops(`${API_BASE_URL}/api/shops/nearby`);
+      fetchShops(`${API_BASE_URL}/api/shops/nearby`);
     }
   }, []);
 
   if (mode === 'qr') {
-     return (
-       <div className="relative">
-         <button onClick={() => setMode('list')} className="absolute -top-14 left-4 text-indigo-600 font-bold hover:text-indigo-800 transition flex items-center z-50">
-           <ChevronRight className="w-5 h-5 rotate-180 mr-1"/> Back to List
-         </button>
-         <SpAbhay_StoreCheckIn onLockedIn={onSelectShop} />
-       </div>
-     );
+    return (
+      <div className="relative">
+        <button onClick={() => setMode('list')} className="absolute -top-14 left-4 text-indigo-600 font-bold hover:text-indigo-800 transition flex items-center z-50">
+          <ChevronRight className="w-5 h-5 rotate-180 mr-1" /> Back to List
+        </button>
+        <SpAbhay_StoreCheckIn onLockedIn={onSelectShop} />
+      </div>
+    );
   }
 
   return (
@@ -102,7 +104,7 @@ function NearbyShops({ onSelectShop }) {
           <p className="text-slate-500 font-medium">Auto-detected via Geolocation</p>
         </div>
         <button onClick={() => setMode('qr')} className="bg-indigo-50 text-indigo-600 px-4 py-2 font-bold rounded-xl flex items-center hover:bg-indigo-100">
-           <Camera className="w-4 h-4 mr-2" /> Scan QR
+          <Camera className="w-4 h-4 mr-2" /> Scan QR
         </button>
       </div>
 
@@ -111,15 +113,15 @@ function NearbyShops({ onSelectShop }) {
       ) : (
         <div className="grid gap-4">
           {shops.map((shop, idx) => (
-             <div key={shop._id} onClick={() => onSelectShop(shop._id)} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-md transition cursor-pointer flex justify-between items-center group">
-               <div>
-                 <h3 className="text-xl font-bold text-slate-800">{shop.shopName}</h3>
-                 <p className="text-emerald-500 text-sm font-bold flex items-center mt-1"><MapPin className="w-3.5 h-3.5 mr-1" /> {shop.distanceKm !== undefined ? (shop.distanceKm < 1 ? `${Math.round(shop.distanceKm * 1000)}m away` : `${shop.distanceKm.toFixed(1)}km away`) : 'Distance unknown'}</p>
-               </div>
-               <div className="w-12 h-12 bg-slate-50 group-hover:bg-indigo-50 text-slate-400 group-hover:text-indigo-600 rounded-2xl flex items-center justify-center transition">
-                 <Store className="w-6 h-6" />
-               </div>
-             </div>
+            <div key={shop._id} onClick={() => onSelectShop(shop._id)} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-md transition cursor-pointer flex justify-between items-center group">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">{shop.shopName}</h3>
+                <p className="text-emerald-500 text-sm font-bold flex items-center mt-1"><MapPin className="w-3.5 h-3.5 mr-1" /> {shop.distanceKm !== undefined ? (shop.distanceKm < 1 ? `${Math.round(shop.distanceKm * 1000)}m away` : `${shop.distanceKm.toFixed(1)}km away`) : 'Distance unknown'}</p>
+              </div>
+              <div className="w-12 h-12 bg-slate-50 group-hover:bg-indigo-50 text-slate-400 group-hover:text-indigo-600 rounded-2xl flex items-center justify-center transition">
+                <Store className="w-6 h-6" />
+              </div>
+            </div>
           ))}
           {shops.length === 0 && <p className="text-center font-bold text-slate-400 mt-10">No nearby shops found.</p>}
         </div>
@@ -129,54 +131,74 @@ function NearbyShops({ onSelectShop }) {
 }
 
 
-export default function SpAbhay_CustomerDashboard() {
+export default function Kulish_CustomerShopIn() {
   const [showScanner, setShowScanner] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [showManualItems, setShowManualItems] = useState(false);
-  const { currentShopId, setShopId } = useCartStore();
+  const { currentShopId, setShopId, activeOrderId } = useCartStore();
   const auth = useCustomerAuth();
 
   if (!auth.isAuthenticated) return <CustomerAuthView auth={auth} />;
 
   if (!currentShopId) {
     return (
+      <>
       <div className="pt-4">
-         <div className="flex justify-between items-center bg-white p-4 px-6 rounded-3xl shadow-sm border border-slate-100 mb-6 mx-auto">
-           <span className="font-black text-indigo-600 tracking-tight text-xl flex items-center gap-2">
-             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white"><Sparkles className="w-4 h-4" /></div>
-             SelfpieBlink
-           </span>
-           <button onClick={() => auth.logout()} className="flex items-center text-rose-500 font-bold hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl transition">
-             <LogOut className="w-4 h-4 mr-2"/> Logout
+        <div className="flex justify-between items-center bg-white p-4 px-6 rounded-3xl shadow-sm border border-slate-100 mb-6 mx-auto">
+          <span className="font-black text-indigo-600 tracking-tight text-xl flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white"><Sparkles className="w-4 h-4" /></div>
+            Selfpie
+          </span>
+          <button onClick={() => auth.logout()} className="flex items-center text-rose-500 font-bold hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl transition">
+            <LogOut className="w-4 h-4 mr-2" /> Logout
+          </button>
+        </div>
+        <NearbyShops onSelectShop={(id) => setShopId(id)} />
+      </div>
+      {activeOrderId && (
+         <div className="fixed bottom-24 md:bottom-8 right-6 z-50">
+           <button onClick={() => window.dispatchEvent(new Event('open-gate-pass'))} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-full font-black text-sm shadow-2xl flex items-center gap-2 shadow-indigo-300 border-4 border-white transition-transform active:scale-95">
+              <Store className="w-5 h-5" /> Active Gate Pass <ChevronRight className="w-4 h-4 ml-1" />
            </button>
          </div>
-         <NearbyShops onSelectShop={(id) => setShopId(id)} />
-       </div>
+      )}
+      <Abhay_CustomerPickup />
+      </>
     );
   }
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500">
       <div className="flex justify-between items-center mb-6">
-        <button 
+        <button
           onClick={() => { setShopId(null); setShowScanner(false); setShowBarcodeScanner(false); setShowManualItems(false); }}
           className="flex items-center text-slate-500 font-semibold hover:text-slate-800 transition"
         >
           <ChevronRight className="rotate-180 w-5 h-5 mr-1" /> Leave Store
         </button>
         <button onClick={() => { auth.logout(); setShopId(null); }} className="flex items-center text-rose-500 font-bold hover:text-rose-600 transition">
-          <LogOut className="w-4 h-4 mr-1"/> Logout
+          <LogOut className="w-4 h-4 mr-1" /> Logout
         </button>
       </div>
-      
+
       <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-indigo-100/50 border border-indigo-50 relative overflow-hidden mb-safe">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
           <Store className="w-64 h-64" />
         </div>
         <h1 className="text-4xl font-black text-slate-900 mb-2">Live Store Checkout</h1>
-        <div className="text-emerald-600 font-bold flex items-center gap-2 mb-8 bg-emerald-50 px-3 py-1 rounded-full w-max text-sm">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Store DB Tracking Locked In
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+           <div className="text-emerald-600 font-bold flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full text-sm">
+             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Store DB Tracking Locked In
+           </div>
         </div>
+
+        {activeOrderId && (
+           <div className="fixed bottom-24 md:bottom-8 right-6 z-40">
+             <button onClick={() => window.dispatchEvent(new Event('open-gate-pass'))} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-full font-black text-sm shadow-2xl flex items-center gap-2 shadow-indigo-300 border-4 border-white transition-transform active:scale-95">
+                <Store className="w-5 h-5" /> Active Gate Pass <ChevronRight className="w-4 h-4 ml-1" />
+             </button>
+           </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-3xl border border-indigo-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all h-full">
@@ -208,8 +230,8 @@ export default function SpAbhay_CustomerDashboard() {
       {showScanner && <SpAbhay_SmartScanner onClose={() => setShowScanner(false)} shopId={currentShopId} />}
       {showBarcodeScanner && <SpAbhay_BarcodeScanner onClose={() => setShowBarcodeScanner(false)} shopId={currentShopId} />}
       {showManualItems && <SpAbhay_ManualItemSelection onClose={() => setShowManualItems(false)} shopId={currentShopId} />}
-      
-      <SpAbhay_ActiveCart />
+
+      <Abhay_CustomerPickup />
     </div>
   );
 }
