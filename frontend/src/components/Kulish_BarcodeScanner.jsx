@@ -4,7 +4,7 @@ import { Camera, X, Loader2, Search, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../store/SpAbhay_useCartStore';
 import { API_BASE_URL } from '../config';
 
-export default function SpAbhay_BarcodeScanner({ onClose, shopId }) {
+export default function Kulish_BarcodeScanner({ onClose, shopId }) {
   const [isScanning, setIsScanning] = useState(true);
   const [scannedItem, setScannedItem] = useState(null);
   const [loading, setLoading] = useState(false);

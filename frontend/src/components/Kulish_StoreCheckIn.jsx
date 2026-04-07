@@ -3,7 +3,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { QrCode, Store, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { useCartStore } from '../store/SpAbhay_useCartStore';
 
-export default function SpAbhay_StoreCheckIn({ onLockedIn }) {
+export default function Kulish_StoreCheckIn({ onLockedIn }) {
   const [scannedId, setScannedId] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const setShopId = useCartStore(state => state.setShopId);

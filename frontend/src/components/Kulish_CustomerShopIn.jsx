@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Search, MapPin, Store, ChevronRight, Loader2, Sparkles, LogOut, ScanLine, ShoppingCart, AlertTriangle } from 'lucide-react';
-import SpAbhay_SmartScanner from './SpAbhay_SmartScanner';
+import Kulish_SmartScanner from './Kulish_SmartScanner';
 import Abhay_CustomerPickup from './Abhay_CustomerPickup';
-import SpAbhay_StoreCheckIn from './SpAbhay_StoreCheckIn';
-import SpAbhay_BarcodeScanner from './SpAbhay_BarcodeScanner';
-import SpAbhay_ManualItemSelection from './SpAbhay_ManualItemSelection';
+import Kulish_StoreCheckIn from './Kulish_StoreCheckIn';
+import Kulish_BarcodeScanner from './Kulish_BarcodeScanner';
+import Kulish_ManualItemSelection from './Kulish_ManualItemSelection';
 import { useCartStore } from '../store/SpAbhay_useCartStore';
 import { API_BASE_URL } from '../config';
 import { useCustomerAuth } from '../hooks/useCustomerAuth';
@@ -91,7 +91,7 @@ function NearbyShops({ onSelectShop }) {
         <button onClick={() => setMode('list')} className="absolute -top-14 left-4 text-indigo-600 font-bold hover:text-indigo-800 transition flex items-center z-50">
           <ChevronRight className="w-5 h-5 rotate-180 mr-1" /> Back to List
         </button>
-        <SpAbhay_StoreCheckIn onLockedIn={onSelectShop} />
+        <Kulish_StoreCheckIn onLockedIn={onSelectShop} />
       </div>
     );
   }
@@ -227,9 +227,9 @@ export default function Kulish_CustomerShopIn() {
         </div>
       </div>
 
-      {showScanner && <SpAbhay_SmartScanner onClose={() => setShowScanner(false)} shopId={currentShopId} />}
-      {showBarcodeScanner && <SpAbhay_BarcodeScanner onClose={() => setShowBarcodeScanner(false)} shopId={currentShopId} />}
-      {showManualItems && <SpAbhay_ManualItemSelection onClose={() => setShowManualItems(false)} shopId={currentShopId} />}
+      {showScanner && <Kulish_SmartScanner onClose={() => setShowScanner(false)} shopId={currentShopId} />}
+      {showBarcodeScanner && <Kulish_BarcodeScanner onClose={() => setShowBarcodeScanner(false)} shopId={currentShopId} />}
+      {showManualItems && <Kulish_ManualItemSelection onClose={() => setShowManualItems(false)} shopId={currentShopId} />}
 
       <Abhay_CustomerPickup />
     </div>
