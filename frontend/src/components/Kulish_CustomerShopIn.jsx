@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Search, MapPin, Store, ChevronRight, Loader2, Sparkles, LogOut, ScanLine, ShoppingCart, AlertTriangle } from 'lucide-react';
-import Kulish_SmartScanner from './Kulish_SmartScanner';
+import Abhay_SmartScanner from './Abhay_SmartScanner';
 import Abhay_CustomerPickup from './Abhay_CustomerPickup';
 import Kulish_StoreCheckIn from './Kulish_StoreCheckIn';
 import Kulish_BarcodeScanner from './Kulish_BarcodeScanner';
@@ -227,7 +227,7 @@ export default function Kulish_CustomerShopIn() {
         </div>
       </div>
 
-      {showScanner && <Kulish_SmartScanner onClose={() => setShowScanner(false)} shopId={currentShopId} />}
+      {showScanner && <Abhay_SmartScanner onClose={() => setShowScanner(false)} shopId={currentShopId} />}
       {showBarcodeScanner && <Kulish_BarcodeScanner onClose={() => setShowBarcodeScanner(false)} shopId={currentShopId} />}
       {showManualItems && <Kulish_ManualItemSelection onClose={() => setShowManualItems(false)} shopId={currentShopId} />}
 
