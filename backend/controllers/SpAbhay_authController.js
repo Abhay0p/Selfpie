@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 import { SpAbhay_User } from '../models/SpAbhay_User.js';
 
 const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.JWT_SECRET || 'SpAbhay_FallbackSecretKey_123', { expiresIn: '3d' });
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be defined in environment variables');
+  }
+  return jwt.sign({ _id }, process.env.JWT_SECRET, { expiresIn: '3d' });
 };
 
 export const signupUser = async (req, res) => {

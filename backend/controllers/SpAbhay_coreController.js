@@ -123,16 +123,9 @@ export const generateCheckout = async (req, res) => {
   const orderIdString = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
   
   try {
-    const shop = await SpAbhay_User.findById(shopId);
-    const shopNameClean = shop ? shop.shopName.replace(/\s+/g, '') : 'SelfpieMerchant';
-
     await SpAbhay_Order.create({ shopId, orderIdString, items, total, status: 'Pending', pickupTime });
     
-    const upiTarget = shop && shop.upiId ? shop.upiId : `${shopNameClean}@paytm`;
-    const merchantName = shop ? shop.shopName : 'SelfpieMerchant';
-    const upiLink = `upi://pay?pa=${upiTarget}&pn=${merchantName}&am=${total}&cu=INR&tn=${orderIdString}`;
-    
-    res.json({ success: true, orderId: orderIdString, upiLink });
+    res.json({ success: true, orderId: orderIdString });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Order generation failed' });
   }

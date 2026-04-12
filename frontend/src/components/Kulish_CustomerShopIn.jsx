@@ -87,11 +87,13 @@ function NearbyShops({ onSelectShop }) {
 
   if (mode === 'qr') {
     return (
-      <div className="relative">
-        <button onClick={() => setMode('list')} className="absolute -top-14 left-4 text-indigo-600 font-bold hover:text-indigo-800 transition flex items-center z-50">
+      <div className="flex flex-col items-start gap-4 w-full">
+        <button onClick={() => setMode('list')} className="text-indigo-600 font-bold hover:text-indigo-800 transition flex items-center mt-2 ml-4">
           <ChevronRight className="w-5 h-5 rotate-180 mr-1" /> Back to List
         </button>
-        <Kulish_StoreCheckIn onLockedIn={onSelectShop} />
+        <div className="w-full">
+          <Kulish_StoreCheckIn onLockedIn={onSelectShop} />
+        </div>
       </div>
     );
   }

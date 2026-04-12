@@ -17,7 +17,7 @@ services:
     environment:
       - PORT=5000
       - MONGODB_URI=mongodb://mongodb:27017/grocery_billing
-      - JWT_SECRET=SpAbhay_ProductionSecret_789
+      - JWT_SECRET=${JWT_SECRET}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - mongodb

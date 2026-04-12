@@ -77,7 +77,7 @@ export default function Abhay_CustomerPickup() {
       const data = await res.json();
       
       if(data.success) {
-        setActiveOrder({ id: data.orderId, status: 'Pending Payment', upiLink: data.upiLink, items: cartItems });
+        setActiveOrder({ id: data.orderId, status: 'Pending Payment', items: cartItems });
         setActiveOrderId(data.orderId);
         setShowGatePass(true);
       }
@@ -105,6 +105,49 @@ export default function Abhay_CustomerPickup() {
      fetchActiveOrder();
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => { resolve(true); };
+      script.onerror = () => { resolve(false); };
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRazorpayPayment = async () => {
+    setIsCheckingOut(true);
+    const res = await loadRazorpayScript();
+
+    if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      setIsCheckingOut(false);
+      return;
+    }
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_ScZS6ZXyM7Cku1',
+      amount: totalPrice * 100, // Amount in paise
+      currency: "INR",
+      name: "SelfpieBlink Checkout",
+      description: "Grocery Payment",
+      handler: function (response) {
+         // Success handler
+         verifyPaymentLocally();
+      },
+      prefill: {
+        name: "Test Customer",
+        email: "customer@example.com",
+        contact: "9999999999",
+      },
+      theme: { color: "#4f46e5" },
+    };
+    
+    setIsCheckingOut(false);
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
+
   const getStatusIcon = (status) => {
     if(status === 'Pending') return <Clock className="w-12 h-12 text-blue-500 animate-pulse" />;
     if(status === 'Accepted') return <CheckCircle2 className="w-12 h-12 text-indigo-500" />;
@@ -121,34 +164,19 @@ export default function Abhay_CustomerPickup() {
           {activeOrder.status === 'Pending Payment' ? (
             <>
               <h3 className="text-2xl font-black text-slate-900 mb-2 mt-4">Complete Payment</h3>
-              <p className="text-slate-500 font-medium mb-6">Scan QR to pay and get your Gate Pass.</p>
+              <p className="text-slate-500 font-medium mb-6">Proceed with secure Razorpay Checkout.</p>
               
-              <div className="bg-slate-50 p-4 border-2 border-slate-200 rounded-3xl mb-6 shadow-inner mx-auto inline-block">
-                <img 
-                  src={`https://quickchart.io/qr?size=250&text=${encodeURIComponent(activeOrder.upiLink)}`} 
-                  alt="UPI QR Code" 
-                  className="rounded-2xl w-48 h-48 mix-blend-multiply bg-white"
-                  onError={(e) => { e.target.src = "https://quickchart.io/qr?size=250&text=SelfpiePayment"; }}
-                />
-              </div>
-              
-              <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 px-6 py-3 rounded-2xl font-black text-xl mb-6 flex items-center justify-center gap-2 w-full">
-                <span>Amount to Pay: </span>
-                <span className="text-emerald-900">₹{totalPrice}</span>
+              <div className="bg-indigo-50 border border-indigo-100 text-indigo-700 p-6 rounded-3xl font-black text-xl mb-6 text-center w-full">
+                <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-2">Amount to Pay</p>
+                <div className="text-4xl text-indigo-900">₹{totalPrice}</div>
               </div>
               
               <div className="space-y-4 w-full">
                 <button 
-                  onClick={() => {
-                     setIsCheckingOut(true);
-                     setTimeout(() => {
-                        setIsCheckingOut(false);
-                        verifyPaymentLocally();
-                     }, 2000);
-                  }} 
+                  onClick={handleRazorpayPayment} 
                   disabled={isCheckingOut}
-                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 disabled:bg-indigo-400">
-                  {isCheckingOut ? <><Loader2 className="w-5 h-5 animate-spin" /> Verifying Payment...</> : 'I have scanned & paid'}
+                  className="w-full py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 disabled:bg-slate-400 transition-all active:scale-95">
+                  {isCheckingOut ? <><Loader2 className="w-5 h-5 animate-spin" /> Loading Razorpay...</> : 'Pay with Razorpay'}
                 </button>
               </div>
             </>
@@ -242,6 +270,10 @@ export default function Abhay_CustomerPickup() {
           </div>
 
           <div className="p-6 md:p-8 max-h-[60vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-black text-slate-800">Your Items</h3>
+              <button onClick={clearCart} className="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition">Clear Cart</button>
+            </div>
             <div className="space-y-4 mb-8">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">

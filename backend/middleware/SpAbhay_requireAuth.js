@@ -11,7 +11,10 @@ export const requireAuth = async (req, res, next) => {
   const token = authorization.split(' ')[1];
 
   try {
-    const { _id } = jwt.verify(token, process.env.JWT_SECRET || 'SpAbhay_FallbackSecretKey_123');
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET must be defined in environment variables');
+    }
+    const { _id } = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await SpAbhay_User.findOne({ _id }).select('_id');
     if (!req.user) {
        return res.status(401).json({ error: 'Authorized user not found' });
