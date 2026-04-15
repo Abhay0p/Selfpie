@@ -2,7 +2,6 @@ import { create } from 'zustand';
 
 export const useCartStore = create((set) => ({
   cartItems: [],
-  merchantOrders: [], 
   currentShopId: null,
   activeOrderId: localStorage.getItem('activeOrderId') || null,
 
@@ -35,7 +34,4 @@ export const useCartStore = create((set) => ({
 
   clearCart: () => set({ cartItems: [] }),
 
-  // Example action for orders
-  setMerchantOrders: (orders) => set({ merchantOrders: orders }),
-  addMerchantOrder: (order) => set((state) => ({ merchantOrders: [order, ...state.merchantOrders] })),
 }));

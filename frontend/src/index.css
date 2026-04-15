@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -14,6 +15,89 @@
 }
 
 body {
-  background-color: #f9fafb;
-  color: #111827;
+  font-family: 'Inter', sans-serif;
+  background-color: #020617;
+  color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Aurora Animation */
+.bg-aurora {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  background-color: #020617;
+  overflow: hidden;
+}
+
+.bg-aurora::before, .bg-aurora::after {
+  content: "";
+  position: absolute;
+  width: 150vw;
+  height: 150vh;
+  top: -25vh;
+  left: -25vw;
+  background-image: 
+    radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at bottom left, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at top right, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+  animation: aurora 20s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.bg-aurora::after {
+  background-image: 
+    radial-gradient(ellipse at center, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at bottom right, rgba(20, 184, 166, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at top left, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
+  animation: aurora-reverse 25s linear infinite;
+}
+
+@keyframes aurora {
+  0% { transform: rotate(0deg) translate(0, 0); }
+  50% { transform: rotate(180deg) translate(-2%, 2%); }
+  100% { transform: rotate(360deg) translate(0, 0); }
+}
+
+@keyframes aurora-reverse {
+  0% { transform: rotate(360deg) translate(0, 0); }
+  50% { transform: rotate(180deg) translate(2%, -2%); }
+  100% { transform: rotate(0deg) translate(0, 0); }
+}
+
+/* Glassmorphism utilities (Dark Mode Default) */
+.glass {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-dark {
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

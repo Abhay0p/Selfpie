@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, PackageSearch, QrCode, LogOut, CheckCircle2, MessageSquare, AlertTriangle, PackageCheck, Loader2, Trash2, Edit, X, History } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import { Html5Qrcode } from 'html5-qrcode';
 import { API_BASE_URL } from '../config';
@@ -28,31 +29,37 @@ function ShopSettings({ shopId }) {
   };
 
   return (
-    <div className="animate-in fade-in py-4 max-w-2xl">
-      <h2 className="text-3xl font-black text-slate-800 mb-2">Store Configuration</h2>
-      <p className="text-slate-500 font-medium mb-8">Update your store details and preferences.</p>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-4 max-w-2xl">
+      <h2 className="text-3xl font-black text-white mb-2">Store Configuration</h2>
+      <p className="text-slate-400 font-medium mb-8">Update your store details and preferences.</p>
       
-      <form onSubmit={handleUpdate} className="space-y-6 bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm relative">
-        {success && <div className="absolute top-4 right-4 bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-2"><CheckCircle2 className="w-4 h-4"/> Saved!</div>}
+      <form onSubmit={handleUpdate} className="space-y-6 glass-dark p-6 sm:p-8 rounded-[2rem] border border-slate-700/50 shadow-xl shadow-indigo-500/10 relative overflow-hidden">
+        <AnimatePresence>
+          {success && (
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute top-4 right-4 bg-emerald-900/80 text-emerald-300 px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-2 shadow-sm border border-emerald-500/30 backdrop-blur-md z-10">
+              <CheckCircle2 className="w-4 h-4"/> Saved!
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         <div>
-           <label className="text-sm font-bold text-slate-500 ml-1 mb-2 block uppercase">Shop Name</label>
-           <input type="text" value={formData.shopName} onChange={e=>setFormData({...formData, shopName:e.target.value})} placeholder="New Store Name" className="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition" />
+           <label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Shop Name</label>
+           <input type="text" value={formData.shopName} onChange={e=>setFormData({...formData, shopName:e.target.value})} placeholder="New Store Name" className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 rounded-2xl border border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition outline-none font-bold text-white placeholder-slate-500" />
         </div>
         <div>
-           <label className="text-sm font-bold text-slate-500 ml-1 mb-2 block uppercase">UPI ID for Payments</label>
-           <input type="text" value={formData.upiId} onChange={e=>setFormData({...formData, upiId:e.target.value})} placeholder="username@bank" className="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition" />
+           <label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">UPI ID for Payments</label>
+           <input type="text" value={formData.upiId} onChange={e=>setFormData({...formData, upiId:e.target.value})} placeholder="username@bank" className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 rounded-2xl border border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition outline-none font-bold text-white placeholder-slate-500" />
         </div>
         <div>
-           <label className="text-sm font-bold text-slate-500 ml-1 mb-2 block uppercase">Default Preparation Time (Minutes)</label>
-           <input type="number" value={formData.prepTime} onChange={e=>setFormData({...formData, prepTime:Number(e.target.value)})} min="1" className="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition" />
+           <label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Default Preparation Time (Minutes)</label>
+           <input type="number" value={formData.prepTime} onChange={e=>setFormData({...formData, prepTime:Number(e.target.value)})} min="1" className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 rounded-2xl border border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition outline-none font-bold text-white placeholder-slate-500" />
         </div>
         
-        <button type="submit" disabled={loading} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 disabled:bg-indigo-400">
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading} className="w-full py-4 mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-2xl shadow-[0_4px_20px_rgba(99,102,241,0.4)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
-        </button>
+        </motion.button>
       </form>
-    </div>
+    </motion.div>
   );
 }
 function InventoryManager({ shopId }) {
@@ -111,37 +118,41 @@ function InventoryManager({ shopId }) {
   if(loading) return <div className="p-10 text-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500 mx-auto" /></div>;
 
   return (
-    <div className="animate-in fade-in py-4">
-      <h2 className="text-3xl font-black text-slate-800 mb-8">Inventory Catalog</h2>
-      <form onSubmit={handleSave} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-8 flex flex-wrap gap-4 items-end shadow-sm">
-         <div className="flex-1 min-w-[200px]"><label className="text-xs font-bold text-slate-500 ml-1 mb-1 block uppercase">Name</label><input type="text" required value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200" /></div>
-         <div className="w-32"><label className="text-xs font-bold text-slate-500 ml-1 mb-1 block uppercase">Price (₹)</label><input type="number" required min="0" value={formData.price} onChange={e=>setFormData({...formData, price:e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200" /></div>
-         <div className="w-32"><label className="text-xs font-bold text-slate-500 ml-1 mb-1 block uppercase">Stock</label><input type="number" required min="0" value={formData.stock} onChange={e=>setFormData({...formData, stock:e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200" /></div>
-         <div className="flex-1 min-w-[150px]"><label className="text-xs font-bold text-slate-500 ml-1 mb-1 block uppercase">Barcode</label><input type="text" value={formData.barcode} onChange={e=>setFormData({...formData, barcode:e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200" /></div>
-         <button type="submit" className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg">{editingId?'Update':'Add Item'}</button>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="py-4">
+      <h2 className="text-3xl font-black text-white mb-8">Inventory Catalog</h2>
+      <form onSubmit={handleSave} className="glass-dark p-6 rounded-[2rem] border border-slate-700/50 mb-8 flex flex-wrap gap-4 items-end shadow-xl shadow-indigo-500/5">
+         <div className="flex-1 min-w-[200px]"><label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Name</label><input type="text" required value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full px-4 py-3 bg-slate-900/60 focus:bg-slate-800 rounded-xl border border-slate-700 text-slate-100 focus:border-indigo-500 outline-none" /></div>
+         <div className="w-32"><label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Price (₹)</label><input type="number" required min="0" value={formData.price} onChange={e=>setFormData({...formData, price:e.target.value})} className="w-full px-4 py-3 bg-slate-900/60 focus:bg-slate-800 rounded-xl border border-slate-700 text-slate-100 focus:border-indigo-500 outline-none" /></div>
+         <div className="w-32"><label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Stock</label><input type="number" required min="0" value={formData.stock} onChange={e=>setFormData({...formData, stock:e.target.value})} className="w-full px-4 py-3 bg-slate-900/60 focus:bg-slate-800 rounded-xl border border-slate-700 text-slate-100 focus:border-indigo-500 outline-none" /></div>
+         <div className="flex-1 min-w-[150px]"><label className="text-xs font-black text-indigo-300 ml-1 mb-2 block uppercase tracking-widest">Barcode</label><input type="text" value={formData.barcode} onChange={e=>setFormData({...formData, barcode:e.target.value})} className="w-full px-4 py-3 bg-slate-900/60 focus:bg-slate-800 rounded-xl border border-slate-700 text-slate-100 focus:border-indigo-500 outline-none" /></div>
+         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold rounded-xl shadow-[0_4px_15px_rgba(99,102,241,0.4)] transition-all">{editingId?'Update':'Add Item'}</motion.button>
       </form>
 
-      <table className="w-full text-left border-collapse bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <thead><tr className="bg-slate-50 text-slate-500 font-bold uppercase text-xs"><th className="p-4">Product</th><th className="p-4">Pricing</th><th className="p-4 text-center">Fast Status Toggle</th><th className="p-4 text-right">Actions</th></tr></thead>
-        <tbody>
-          {items.map(i => (
-            <tr key={i._id} className="border-t border-slate-50">
-              <td className="p-4 font-bold text-slate-800">{i.name} <div className="text-slate-400 font-mono text-xs font-normal">{i.barcode||'No barcode'}</div></td>
-              <td className="p-4 font-black tracking-tight">₹{i.price}</td>
-              <td className="p-4 text-center">
-                 <button onClick={()=>toggleStock(i)} className={`px-4 py-2 font-bold text-xs rounded-xl shadow-sm transition-all focus:scale-95 ${i.stock > 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-rose-100 text-rose-700 hover:bg-emerald-100 hover:text-emerald-700'}`}>
-                   {i.stock > 0 ? `In Stock (${i.stock})` : 'Out of Stock'}
-                 </button>
-              </td>
-              <td className="p-4 text-right">
-                <button onClick={()=>{setFormData({name:i.name,price:i.price,stock:i.stock,barcode:i.barcode});setEditingId(i._id);}} className="p-2 text-slate-400 hover:text-indigo-600"><Edit className="w-4 h-4" /></button>
-                <button onClick={()=>handleDelete(i._id)} className="p-2 text-slate-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-slate-700/50 overflow-hidden text-slate-200">
+        <table className="w-full text-left border-collapse">
+          <thead><tr className="bg-indigo-900/30 text-indigo-300 font-black uppercase text-[10px] tracking-widest border-b border-indigo-500/20"><th className="p-4">Product</th><th className="p-4">Pricing</th><th className="p-4 text-center">Fast Status Toggle</th><th className="p-4 text-right">Actions</th></tr></thead>
+          <tbody>
+            <AnimatePresence>
+              {items.map(i => (
+                <motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={i._id} className="border-t border-slate-700 hover:bg-slate-800/50 transition-colors">
+                  <td className="p-4 font-bold text-slate-100">{i.name} <div className="text-slate-500 font-mono text-[10px] font-normal uppercase tracking-wider mt-1">{i.barcode||'No barcode'}</div></td>
+                  <td className="p-4 font-black tracking-tight text-lg text-emerald-400">₹{i.price}</td>
+                  <td className="p-4 text-center">
+                     <button onClick={()=>toggleStock(i)} className={`px-4 py-2 font-black text-[10px] uppercase tracking-wider rounded-xl shadow-sm transition-all active:scale-95 border ${i.stock > 0 ? 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30 hover:bg-rose-900/30 hover:text-rose-400 hover:border-rose-500/30' : 'bg-rose-900/30 text-rose-400 border-rose-500/30 hover:bg-emerald-900/30 hover:text-emerald-400 hover:border-emerald-500/30'}`}>
+                       {i.stock > 0 ? `In Stock (${i.stock})` : 'Out of Stock'}
+                     </button>
+                  </td>
+                  <td className="p-4 text-right space-x-2">
+                    <button onClick={()=>{setFormData({name:i.name,price:i.price,stock:i.stock,barcode:i.barcode});setEditingId(i._id);}} className="p-2 bg-indigo-900/30 text-indigo-400 rounded-lg hover:bg-indigo-800/60 border border-indigo-500/30 transition"><Edit className="w-4 h-4" /></button>
+                    <button onClick={()=>handleDelete(i._id)} className="p-2 bg-rose-900/30 text-rose-400 rounded-lg hover:bg-rose-800/60 border border-rose-500/30 transition"><Trash2 className="w-4 h-4" /></button>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
   );
 }
 
@@ -206,19 +217,19 @@ function ExitApproval({ shopId }) {
 
   return (
     <div className="max-w-2xl mx-auto text-center animate-in fade-in py-10">
-      <h2 className="text-3xl font-black text-slate-800 mb-4">Gatekeeper QR Scanner</h2>
+      <h2 className="text-3xl font-black text-white mb-4">Gatekeeper QR Scanner</h2>
       
       {isScanning ? (
-         <div className="mb-8 p-4 bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative mx-auto max-w-sm">
-            <div id="door-reader" className="w-full aspect-square [&>video]:object-cover [&>video]:w-full [&>video]:h-full [&>div]:hidden bg-slate-900 rounded-2xl overflow-hidden"></div>
+         <div className="mb-8 p-4 glass-dark rounded-[2.5rem] border border-slate-700 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative mx-auto max-w-sm">
+            <div id="door-reader" className="w-full aspect-square [&>video]:object-cover [&>video]:w-full [&>video]:h-full [&>div]:hidden bg-slate-900 rounded-3xl overflow-hidden shadow-inner"></div>
          </div>
       ) : (
-         <button onClick={() => { setIsScanning(true); setResult(null); }} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl mb-6 font-bold shadow-lg transition active:scale-95">
+         <button onClick={() => { setIsScanning(true); setResult(null); }} className="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-2xl mb-6 font-black shadow-[0_4px_20px_rgba(99,102,241,0.4)] transition active:scale-95">
            Scan Another Gate Pass
          </button>
       )}
 
-      {result && <div className={`p-6 rounded-3xl font-bold border text-lg max-w-sm mx-auto ${result.success ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' : 'bg-rose-50 text-rose-700 border-rose-200 shadow-sm'}`}>{result.message}</div>}
+      {result && <div className={`p-6 rounded-3xl font-bold border text-lg max-w-sm mx-auto shadow-lg ${result.success ? 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30' : 'bg-rose-900/30 text-rose-400 border-rose-500/30'}`}>{result.message}</div>}
     </div>
   );
 }
