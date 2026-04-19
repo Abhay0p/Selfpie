@@ -127,7 +127,8 @@ export default function Abhay_CustomerPickup() {
     }
 
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_ScZS6ZXyM7Cku1',
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
       amount: totalPrice * 100, // Amount in paise
       currency: "INR",
       name: "SelfpieBlink Checkout",
