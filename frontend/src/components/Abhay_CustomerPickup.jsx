@@ -29,7 +29,7 @@ export default function Abhay_CustomerPickup() {
       body: JSON.stringify({ orderIdString: freshOrderId })
     }).then(res => res.json()).then(data => {
       if(data.success) {
-         setActiveOrder({ id: data.data.orderIdString, status: data.data.status, prepTime: data.data.estPrepTime, upiLink: '', items: data.data.items || [], shopName: data.data.shopName });
+         setActiveOrder({ id: data.data.orderIdString, status: data.data.status, prepTime: data.data.estPrepTime, upiLink: '', items: data.data.items || [], shopName: data.data.shopName, razorpayOrderId: data.data.razorpayOrderId });
       } else {
          useCartStore.getState().setActiveOrderId(null);
       }
@@ -78,7 +78,7 @@ export default function Abhay_CustomerPickup() {
       const data = await res.json();
       
       if(data.success) {
-        setActiveOrder({ id: data.orderId, status: 'Pending Payment', items: cartItems });
+        setActiveOrder({ id: data.orderId, status: 'Pending Payment', items: cartItems, razorpayOrderId: data.razorpayOrderId });
         setActiveOrderId(data.orderId);
         setShowGatePass(true);
       }
@@ -129,8 +129,9 @@ export default function Abhay_CustomerPickup() {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
-      amount: totalPrice * 100, // Amount in paise
+      amount: Math.round(totalPrice * 100), // Amount in paise
       currency: "INR",
+      order_id: activeOrder.razorpayOrderId,
       name: "SelfpieBlink Checkout",
       description: "Grocery Payment",
       handler: function (response) {

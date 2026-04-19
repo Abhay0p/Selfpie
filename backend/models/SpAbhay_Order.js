@@ -11,6 +11,9 @@ const orderSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  razorpayOrderId: {
+    type: String
+  },
   items: [{
     itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'SpAbhay_Item' },
     name: String,

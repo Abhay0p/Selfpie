@@ -2,6 +2,7 @@ import { SpAbhay_Item } from '../models/SpAbhay_Item.js';
 import { SpAbhay_Order } from '../models/SpAbhay_Order.js';
 import { SpAbhay_User } from '../models/SpAbhay_User.js';
 import { matchListWithAI } from './SpAbhay_aiMatcher.js';
+import Razorpay from 'razorpay';
 
 export const getNearbyShops = async (req, res) => {
   try {
@@ -123,10 +124,24 @@ export const generateCheckout = async (req, res) => {
   const orderIdString = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
   
   try {
-    await SpAbhay_Order.create({ shopId, orderIdString, items, total, status: 'Pending', pickupTime });
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
     
-    res.json({ success: true, orderId: orderIdString });
+    // Create Razorpay Order
+    const options = {
+      amount: Math.round(total * 100), 
+      currency: "INR",
+      receipt: orderIdString
+    };
+    const rzpOrder = await razorpay.orders.create(options);
+
+    await SpAbhay_Order.create({ shopId, orderIdString, items, total, status: 'Pending Payment', pickupTime, razorpayOrderId: rzpOrder.id });
+    
+    res.json({ success: true, orderId: orderIdString, razorpayOrderId: rzpOrder.id });
   } catch (error) {
+    console.error('Order generation error:', error);
     res.status(500).json({ success: false, message: 'Order generation failed' });
   }
 };
