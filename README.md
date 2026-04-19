@@ -1,4 +1,4 @@
-# Smart Grocery System (SelfpieBlink)
+# Smart Grocery System (Selfpie)
 
 ## Overview
 SelfpieBlink is a production-ready, full-stack Smart Grocery Billing System designed to eliminate physical checkout queues. It provides a "Blinkit-style" seamless shopping experience for customers and a powerful "Queue-Buster" dashboard for merchants. The system streamlines grocery shopping by bridging the gap between physical stores and digital convenience, allowing users to scan items, process AI-based handwritten lists, and checkout from their own devices.
