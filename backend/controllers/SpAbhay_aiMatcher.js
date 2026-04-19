@@ -17,17 +17,6 @@ export const matchListWithAI = async (imageBuffer, inventory, mimeType = 'image/
   }
   requestCount++;
 
-  // Mock Gemini Response if API key is demo
-  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
-    console.log('Using simulated AI matching (No real API key)');
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    // Provide a mocked parsed list corresponding to the inventory
-    return [
-      { matchedId: '1', name: 'Amul Milk 500ml', requestedQuantity: 2, price: 30 },
-      { matchedId: '4', name: 'Maggi Noodles', requestedQuantity: 5, price: 14 }
-    ];
-  }
 
   // Actual Gemini API Integration
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

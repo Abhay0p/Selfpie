@@ -10,9 +10,9 @@ export function useMerchantAuth() {
     if (token && shopId) setAuthData({ token, shopId });
   }, []);
 
-  const login = async (email, password, isLogin, shopName, location) => {
+  const login = async (email, password, isLogin, shopName, location, upiId, prepTime) => {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-    const payload = isLogin ? { email, password, role: 'merchant' } : { email, password, shopName, role: 'merchant', location };
+    const payload = isLogin ? { email, password, role: 'merchant', location } : { email, password, shopName, role: 'merchant', location, upiId, prepTime };
     
     try {
       const res = await fetch(`${API_BASE_URL}${endpoint}`, {

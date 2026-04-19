@@ -3,7 +3,7 @@ import { useCartStore } from '../store/SpAbhay_useCartStore';
 import { Camera, Upload, X, Loader2, ListOrdered, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function SpAbhay_SmartScanner({ onClose, shopId }) {
+export default function Abhay_SmartScanner({ onClose, shopId }) {
   const [file, setFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);

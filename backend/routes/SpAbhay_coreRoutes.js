@@ -12,7 +12,9 @@ import {
   updateOrderStatus, 
   exitValidate,
   verifyPayment,
-  getHistory
+  getHistory,
+  updateShopSettings,
+  getActiveOrder
 } from '../controllers/SpAbhay_coreController.js';
 
 const router = express.Router();
@@ -34,5 +36,7 @@ router.post('/orders/verify-payment', verifyPayment);
 router.get('/history/:shopId', getHistory);
 router.put('/orders/:orderIdString/status', updateOrderStatus);
 router.post('/orders/exit-validate', exitValidate);
+router.put('/settings/:shopId', updateShopSettings);
+router.post('/orders/active', getActiveOrder);
 
 export default router;

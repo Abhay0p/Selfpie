@@ -2,8 +2,17 @@ import { create } from 'zustand';
 
 export const useCartStore = create((set) => ({
   cartItems: [],
-  merchantOrders: [], 
   currentShopId: null,
+  activeOrderId: localStorage.getItem('activeOrderId') || null,
+
+  setActiveOrderId: (id) => {
+    if (id) {
+       localStorage.setItem('activeOrderId', id);
+    } else {
+       localStorage.removeItem('activeOrderId');
+    }
+    set({ activeOrderId: id });
+  },
 
   setShopId: (id) => set({ currentShopId: id }),
 
@@ -25,7 +34,4 @@ export const useCartStore = create((set) => ({
 
   clearCart: () => set({ cartItems: [] }),
 
-  // Example action for orders
-  setMerchantOrders: (orders) => set({ merchantOrders: orders }),
-  addMerchantOrder: (order) => set((state) => ({ merchantOrders: [order, ...state.merchantOrders] })),
 }));

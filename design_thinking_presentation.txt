@@ -1,0 +1,57 @@
+Slide 1: Title Slide
+* Project Name: SelfpieBlink (Smart Grocery Application)
+* Topic: Design Thinking and Innovation in Local Grocery Shopping
+* Core Theme: Empowering local merchants and streamlining customer experience
+
+Slide 2: Empathize - Understanding the User
+* Identified heavy customer frustration with long checkout queues at local grocery stores.
+* Recognized the difficulty for small, local merchants to modernize inventory and order management.
+* Observed that many customers still prefer writing physical, handwritten grocery lists.
+* Noted the massive gap between traditional local store convenience and modern quick-commerce app experiences.
+
+Slide 3: Define - The Problem Statement
+* How might we bridge the gap between traditional local grocery shopping and modern online quick-commerce?
+* Essential Need: A solution that empowers small vendors without requiring expensive hardware or steep learning curves.
+* Essential Need: A seamless, frictionless customer experience from list-making to store pickup.
+* Primary Goal: Eliminate waiting times, improve order accuracy, and digitize local commerce.
+
+Slide 4: Ideate - Brainstorming Solutions
+* Concept: A dual-sided platform connecting local shops (Merchant Dashboard) directly with neighborhood customers (Customer App).
+* Innovative Idea: Allow users to simply scan their handwritten grocery lists using AI, bypassing manual search.
+* Innovative Idea: Implement a flexible  checkout & pickup scheduling  system to entirely avoid physical queues.
+* Technical Idea: Utilize WebSockets for real-time inventory and order synchronization.
+
+Slide 5: Prototype - Building SelfpieBlink
+* Developed a responsive, intuitive interface inspired by leading quick-commerce apps (Blinkit-style UI).
+* Integrated Advanced AI (Google Gemini) for smart processing of uploaded handwritten notes.
+* Built real-time WebSocket communication for instant order updates to both merchant and customer.
+* Created geolocation-based store discovery for finding nearby merchants dynamically.
+
+Slide 6: Test - Refining the Experience
+* Refined AI matching algorithms to improve recognition accuracy across various handwriting styles.
+* Adjusted mobile responsiveness to ensure a seamless UI on all screen sizes, particularly Android devices.
+* Optimized the checkout flow with dynamic, custom UPI QR code generation.
+* Implemented an interactive, non-intrusive  Gate Pass  for quick order verification upon store exit.
+
+Slide 7: Core Innovation 1 - AI-Powered List Processing
+* Disrupts traditional e-commerce  manual search and add-to-cart  flows.
+* Leverages Artificial Intelligence to instantly digitize physical, handwritten grocery lists.
+* Automatically matches written items with the specific store's available inventory.
+* Drastically reduces customer effort and friction during the complex grocery ordering process.
+
+Slide 8: Core Innovation 2 - Real-Time Connected Ecosystem
+* Architecture eliminates the need for constant page refreshing or manual status checks.
+* Live inventory tracking prevents common frustrations like out-of-stock ordering.
+* Instant order status tracking bridges the communication gap between merchant and buyer.
+* Geolocation tracking calculates precise distance and optimal pickup times dynamically.
+
+Slide 9: Impact and Value Creation
+* Empowers local brick-and-mortar stores to actively compete with massive quick-commerce giants.
+* Saves significant time for customers, enabling true zero-queue shopping.
+* Fosters local community commerce while utilizing modern, high-end technological standards.
+* Delivers a scalable, low-cost digital infrastructure tailored specifically for small businesses.
+
+Slide 10: Future Scope & Conclusion
+* Potential future integration with automated last-mile delivery partners.
+* Expansion of AI capabilities for predictive grocery ordering based on historical habits.
+* Conclusion: SelfpieBlink represents a highly practical, innovative application of Design Thinking to solve everyday retail challenges.

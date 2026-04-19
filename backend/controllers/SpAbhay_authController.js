@@ -3,11 +3,14 @@ import jwt from 'jsonwebtoken';
 import { SpAbhay_User } from '../models/SpAbhay_User.js';
 
 const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.JWT_SECRET || 'SpAbhay_FallbackSecretKey_123', { expiresIn: '3d' });
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be defined in environment variables');
+  }
+  return jwt.sign({ _id }, process.env.JWT_SECRET, { expiresIn: '3d' });
 };
 
 export const signupUser = async (req, res) => {
-  const { email, password, shopName, ownerName, phone, role, location } = req.body;
+  const { email, password, shopName, ownerName, phone, role, location, upiId, prepTime } = req.body;
   const userRole = role === 'customer' ? 'customer' : 'merchant';
 
   try {
@@ -20,10 +23,12 @@ export const signupUser = async (req, res) => {
     const user = await SpAbhay_User.create({ 
       email, 
       password: hash, 
-      shopName: userRole === 'merchant' ? shopName : 'Customer', 
+      shopName: userRole === 'merchant' ? (shopName || 'My Real Store') : 'Customer', 
       ownerName: userRole === 'merchant' ? ownerName : 'Customer Name', 
       phone,
       role: userRole,
+      upiId: userRole === 'merchant' ? (upiId || null) : null,
+      prepTime: userRole === 'merchant' ? (prepTime || 15) : 15,
       location: location || { lat: 0, lng: 0 }
     });
     const token = createToken(user._id);
@@ -35,7 +40,7 @@ export const signupUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password, role, location } = req.body;
   const loginRole = role === 'customer' ? 'customer' : 'merchant';
 
   try {
@@ -45,6 +50,11 @@ export const loginUser = async (req, res) => {
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: 'Incorrect password' });
+
+    if (location && loginRole === 'merchant') {
+      user.location = location;
+      await user.save();
+    }
 
     const token = createToken(user._id);
     res.status(200).json({ email, token, id: user._id, shopName: user.shopName, role: user.role });

@@ -25,6 +25,9 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: 'Online' // Online, Manual
   },
+  pickupTime: {
+    type: String
+  },
   status: {
     type: String,
     enum: ['Pending', 'Accepted', 'Ready for Pickup', 'Completed', 'Rejected'],

@@ -119,18 +119,13 @@ export const matchAIList = async (req, res) => {
 };
 
 export const generateCheckout = async (req, res) => {
-  const { items, total, shopId } = req.body;
+  const { items, total, shopId, pickupTime } = req.body;
   const orderIdString = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
   
   try {
-    const shop = await SpAbhay_User.findById(shopId);
-    const shopNameClean = shop ? shop.shopName.replace(/\s+/g, '') : 'SelfpieMerchant';
-
-    await SpAbhay_Order.create({ shopId, orderIdString, items, total, status: 'Pending' });
+    await SpAbhay_Order.create({ shopId, orderIdString, items, total, status: 'Pending', pickupTime });
     
-    const upiLink = `upi://pay?pa=${shopNameClean}@paytm&pn=${shopNameClean}&am=${total}&cu=INR&tn=${orderIdString}`;
-    
-    res.json({ success: true, orderId: orderIdString, upiLink });
+    res.json({ success: true, orderId: orderIdString });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Order generation failed' });
   }
@@ -200,5 +195,40 @@ export const getHistory = async (req, res) => {
     res.json({ success: true, data: history });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to retrieve history.' });
+  }
+};
+
+export const updateShopSettings = async (req, res) => {
+  try {
+    const { shopName, upiId, prepTime } = req.body;
+    const updateData = {};
+    if (shopName) updateData.shopName = shopName;
+    if (upiId !== undefined) updateData.upiId = upiId;
+    if (prepTime) updateData.prepTime = prepTime;
+    
+    const updated = await SpAbhay_User.findByIdAndUpdate(
+      req.params.shopId,
+      { $set: updateData },
+      { new: true }
+    );
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update settings.' });
+  }
+};
+
+export const getActiveOrder = async (req, res) => {
+  try {
+    const { orderIdString } = req.body;
+    const order = await SpAbhay_Order.findOne({ 
+      orderIdString, 
+      status: { $in: ['Pending Payment', 'Pending', 'Accepted', 'Ready for Pickup'] }
+    });
+    if (!order) return res.status(404).json({ success: false, message: 'No active order found.' });
+    
+    const shop = await SpAbhay_User.findById(order.shopId);
+    res.json({ success: true, data: { ...order.toObject(), estPrepTime: shop.prepTime || 15, shopName: shop.shopName } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to retrieve active order.' });
   }
 };

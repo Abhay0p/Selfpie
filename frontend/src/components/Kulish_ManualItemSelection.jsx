@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 import { useCartStore } from '../store/SpAbhay_useCartStore';
 import { io } from 'socket.io-client';
 
-export default function SpAbhay_ManualItemSelection({ onClose, shopId }) {
+export default function Kulish_ManualItemSelection({ onClose, shopId }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
