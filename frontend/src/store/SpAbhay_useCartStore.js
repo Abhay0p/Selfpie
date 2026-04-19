@@ -28,9 +28,14 @@ export const useCartStore = create((set) => ({
     cartItems: state.cartItems.filter(i => i.id !== id)
   })),
 
-  updateQuantity: (id, quantity) => set((state) => ({
-    cartItems: state.cartItems.map(i => i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i)
-  })),
+  updateQuantity: (id, quantity) => set((state) => {
+    if (quantity <= 0) {
+      return { cartItems: state.cartItems.filter(i => i.id !== id) };
+    }
+    return {
+      cartItems: state.cartItems.map(i => i.id === id ? { ...i, quantity } : i)
+    };
+  }),
 
   clearCart: () => set({ cartItems: [] }),
 
