@@ -196,6 +196,10 @@ export const verifyPayment = async (req, res) => {
       await SpAbhay_Item.updateOne({ _id: item.itemId }, { $inc: { stock: -item.quantity } });
     }
     
+    // Officially move the order from 'Pending Payment' to 'Pending' so the Gate Pass renders
+    order.status = 'Pending';
+    await order.save();
+    
     res.json({ success: true, message: 'Payment validated and stock instantly deducted.' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Stock deduction failed.' });
