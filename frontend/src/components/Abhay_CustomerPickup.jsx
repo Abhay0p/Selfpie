@@ -81,6 +81,8 @@ export default function Abhay_CustomerPickup() {
         setActiveOrder({ id: data.orderId, status: 'Pending Payment', items: cartItems, razorpayOrderId: data.razorpayOrderId });
         setActiveOrderId(data.orderId);
         setShowGatePass(true);
+      } else {
+        alert("Checkout Failed: " + (data.message || "Unknown error"));
       }
     } catch(err) {
       console.error(err);
@@ -126,8 +128,27 @@ export default function Abhay_CustomerPickup() {
       return;
     }
 
+    let rzpKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+    if (!rzpKeyId) {
+       try {
+          const keyRes = await fetch(`${API_BASE_URL}/api/config/razorpay`);
+          const keyData = await keyRes.json();
+          if (keyData.success) {
+             rzpKeyId = keyData.keyId;
+          }
+       } catch (err) {
+          console.error("Failed to fetch Razorpay key from backend", err);
+       }
+    }
+
+    if (!rzpKeyId) {
+       alert("Razorpay Key is missing. Cannot proceed with payment.");
+       setIsCheckingOut(false);
+       return;
+    }
+
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      key: rzpKeyId,
 
       amount: Math.round(totalPrice * 100), // Amount in paise
       currency: "INR",

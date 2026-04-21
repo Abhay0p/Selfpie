@@ -14,12 +14,13 @@ import {
   verifyPayment,
   getHistory,
   updateShopSettings,
-  getActiveOrder
+  getActiveOrder,
+  getRazorpayKey
 } from '../controllers/SpAbhay_coreController.js';
 
 const router = express.Router();
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
 router.get('/shops/nearby', getNearbyShops);
 router.get('/inventory/:shopId', getInventory);
@@ -38,5 +39,6 @@ router.put('/orders/:orderIdString/status', updateOrderStatus);
 router.post('/orders/exit-validate', exitValidate);
 router.put('/settings/:shopId', updateShopSettings);
 router.post('/orders/active', getActiveOrder);
+router.get('/config/razorpay', getRazorpayKey);
 
 export default router;

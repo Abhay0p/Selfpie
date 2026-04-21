@@ -52,7 +52,10 @@ export const matchListWithAI = async (imageBuffer, inventory, mimeType = 'image/
       }
     });
     
-    return JSON.parse(response.text);
+    let textOut = typeof response.text === 'function' ? response.text() : response.text;
+    if (!textOut) throw new Error("Empty response from AI");
+    textOut = textOut.replace(/```json/gi, '').replace(/```/gi, '').trim();
+    return JSON.parse(textOut);
   } catch (error) {
     console.error('Gemini processing failed:', error);
     // Silent fallback to empty array or throw error

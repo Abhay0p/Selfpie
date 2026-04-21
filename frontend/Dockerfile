@@ -3,14 +3,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-# Expecting an API URL at build time for production
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-# Custom nginx config to handle React Router dropping in
 RUN echo 'server { \
     listen 80; \
     location / { \

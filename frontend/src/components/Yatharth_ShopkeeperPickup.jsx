@@ -18,72 +18,72 @@ function AuthView({ onLogin }) {
   const [upiId, setUpiId] = useState('');
   const [prepTime, setPrepTime] = useState(15);
   const { login } = useMerchantAuth();
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (navigator.geolocation) {
-       navigator.geolocation.getCurrentPosition(async (pos) => {
-         const location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-         const result = await login(email, password, isLogin, shopName || "My Real Store", location, upiId, prepTime);
-         if(result.success) onLogin(result.data); else alert(result.error);
-       }, async (err) => {
-         const result = await login(email, password, isLogin, shopName || "My Real Store", null, upiId, prepTime);
-         if(result.success) onLogin(result.data); else alert(result.error);
-       });
-       return;
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const result = await login(email, password, isLogin, shopName || "Grocery Store", location, upiId, prepTime);
+        if (result.success) onLogin(result.data); else alert(result.error);
+      }, async (err) => {
+        const result = await login(email, password, isLogin, shopName || "Grocery Store", null, upiId, prepTime);
+        if (result.success) onLogin(result.data); else alert(result.error);
+      });
+      return;
     }
-    const result = await login(email, password, isLogin, shopName || "My Real Store", null, upiId, prepTime);
-    if(result.success) {
+    const result = await login(email, password, isLogin, shopName || "Grocery Store", null, upiId, prepTime);
+    if (result.success) {
       onLogin(result.data);
     } else { alert(result.error); }
   };
 
   if (localStorage.getItem('customerToken')) {
-     return (
-       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-center p-6 mt-[-3rem]">
-         <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
-         <h2 className="text-2xl font-black text-slate-800 mb-2">You are currently a Customer</h2>
-         <p className="text-slate-500 mb-8 max-w-sm">Please log out of the customer app before attempting to access the merchant interface to prevent data overlap.</p>
-         <div className="flex flex-col sm:flex-row gap-4">
-           <Link to="/" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition">Return to App</Link>
-           <button onClick={() => { localStorage.removeItem('customerToken'); window.location.reload(); }} className="px-6 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition">Force Logout Customer</button>
-         </div>
-       </div>
-     );
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-center p-6 mt-[-3rem]">
+        <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
+        <h2 className="text-2xl font-black text-slate-800 mb-2">You are currently a Customer</h2>
+        <p className="text-slate-500 mb-8 max-w-sm">Please log out of the customer app before attempting to access the merchant interface to prevent data overlap.</p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to="/" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition">Return to App</Link>
+          <button onClick={() => { localStorage.removeItem('customerToken'); window.location.reload(); }} className="px-6 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold transition">Force Logout Customer</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center relative overflow-hidden p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="glass-dark p-6 sm:p-10 rounded-[2.5rem] w-full max-w-md relative z-10 m-auto"
       >
         <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-8 shadow-[0_0_20px_rgba(99,102,241,0.5)] text-white mx-auto">
-          <LayoutDashboard className="w-8 h-8"/>
+          <LayoutDashboard className="w-8 h-8" />
         </div>
         <h2 className="text-3xl font-black text-white text-center mb-2">{isLogin ? 'Merchant Login' : 'Register Store'}</h2>
         <p className="text-center text-slate-400 text-sm mb-6">Manage your intelligent grocery queue.</p>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
-          <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
           {!isLogin && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
-              <input type="text" placeholder="Shop Name" value={shopName} onChange={e=>setShopName(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
-              <input type="text" placeholder="UPI ID (e.g. user@okbank)" value={upiId} onChange={e=>setUpiId(e.target.value)} className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
-              <input type="number" placeholder="Preparation Time (mins)" value={prepTime} onChange={e=>setPrepTime(Number(e.target.value))} className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
+              <input type="text" placeholder="Shop Name" value={shopName} onChange={e => setShopName(e.target.value)} required className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
+              <input type="text" placeholder="UPI ID (e.g. user@okbank)" value={upiId} onChange={e => setUpiId(e.target.value)} className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
+              <input type="number" placeholder="Preparation Time (mins)" value={prepTime} onChange={e => setPrepTime(Number(e.target.value))} className="w-full px-5 py-4 bg-slate-900/60 focus:bg-slate-800 border border-slate-700 text-slate-100 rounded-2xl font-medium outline-none transition-colors" />
             </motion.div>
           )}
           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold rounded-2xl shadow-[0_4px_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 mt-4">
             {isLogin ? 'Login to Store' : 'Sign Up Store'}
           </motion.button>
           <div className="text-center text-sm font-bold text-indigo-400 cursor-pointer pt-2 hover:text-indigo-300 transition-colors" onClick={() => setIsLogin(!isLogin)}>
-             {isLogin ? 'Create new store account' : 'Already have an account?'}
+            {isLogin ? 'Create new store account' : 'Already have an account?'}
           </div>
           <Link to="/" className="mt-8 flex items-center justify-center gap-2 p-4 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 rounded-2xl text-indigo-300 font-black transition-all">
-            ← Switch to Customer Mode
+            Switch to Customer Mode
           </Link>
         </form>
       </motion.div>
@@ -95,15 +95,15 @@ function DashboardHome({ activeOrders, shopId, onUpdateStatus }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="duration-500">
       <div className="flex justify-between items-start mb-8">
-         <div>
-            <h2 className="text-3xl font-black text-white mb-1">Live Dashboard Overview</h2>
-         </div>
-         <motion.div whileHover={{ scale: 1.05 }} className="hidden md:flex flex-col items-center glass-dark p-4 rounded-3xl border border-slate-700 shadow-sm cursor-pointer hover:shadow-indigo-500/10 transition-all">
-            <h4 className="text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">Print Entrance QR</h4>
-            <div className="bg-white p-2 rounded-2xl">
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${shopId}&color=1e1b4b&bgcolor=ffffff`} alt="QR" className="" />
-            </div>
-         </motion.div>
+        <div>
+          <h2 className="text-3xl font-black text-white mb-1">Live Dashboard Overview</h2>
+        </div>
+        <motion.div whileHover={{ scale: 1.05 }} className="hidden md:flex flex-col items-center glass-dark p-4 rounded-3xl border border-slate-700 shadow-sm cursor-pointer hover:shadow-indigo-500/10 transition-all">
+          <h4 className="text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">Print Entrance QR</h4>
+          <div className="bg-white p-2 rounded-2xl">
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${shopId}&color=1e1b4b&bgcolor=ffffff`} alt="QR" className="" />
+          </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -121,7 +121,7 @@ function DashboardHome({ activeOrders, shopId, onUpdateStatus }) {
       </div>
 
       <h3 className="text-xl font-bold text-white mb-4 tracking-tight">Active Floor Queue</h3>
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         variants={{
@@ -132,42 +132,42 @@ function DashboardHome({ activeOrders, shopId, onUpdateStatus }) {
       >
         <AnimatePresence>
           {activeOrders.map((o, idx) => (
-            <motion.div 
+            <motion.div
               layout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               key={o.orderId} className="glass-dark text-left p-6 rounded-3xl border border-slate-700/50"
             >
-               <div className="flex justify-between items-start mb-4">
-                 <div>
-                    <span className="font-mono font-bold text-slate-300 bg-slate-800/80 px-3 py-1 rounded-lg text-sm mr-2 border border-slate-700/50">{o.orderId}</span>
-                    <span className={`px-3 py-1 font-bold text-xs rounded-full border ${o.status === 'Pending' ? 'bg-amber-900/30 text-amber-400 border-amber-500/30' : o.status === 'Accepted' ? 'bg-indigo-900/30 text-indigo-400 border-indigo-500/30' : 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30'}`}>{o.status}</span>
-                    <p className="text-white font-black mt-3 text-lg">₹{o.total} <span className="text-slate-500 font-medium text-sm ml-2">({o.items.length} items to pick)</span></p>
-                 </div>
-               </div>
-               
-               <div className="bg-slate-900/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 mb-4 max-h-32 overflow-auto shadow-inner">
-                 <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Customer Cart</p>
-                 <ul className="text-sm text-slate-300 font-medium space-y-1">
-                   {o.items.map((i, idxx) => <li key={idxx}>• {i.quantity}x {i.name}</li>)}
-                 </ul>
-               </div>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <span className="font-mono font-bold text-slate-300 bg-slate-800/80 px-3 py-1 rounded-lg text-sm mr-2 border border-slate-700/50">{o.orderId}</span>
+                  <span className={`px-3 py-1 font-bold text-xs rounded-full border ${o.status === 'Pending' ? 'bg-amber-900/30 text-amber-400 border-amber-500/30' : o.status === 'Accepted' ? 'bg-indigo-900/30 text-indigo-400 border-indigo-500/30' : 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30'}`}>{o.status}</span>
+                  <p className="text-white font-black mt-3 text-lg">₹{o.total} <span className="text-slate-500 font-medium text-sm ml-2">({o.items.length} items to pick)</span></p>
+                </div>
+              </div>
 
-               <div className="flex gap-3">
-                 {o.status === 'Pending' && (
-                   <>
-                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Accepted')} className="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-300 transition flex justify-center items-center gap-2"><CheckCircle2 className="w-5 h-5"/> Accept Order</motion.button>
-                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Rejected')} className="px-6 py-3 bg-rose-50 text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition border border-rose-100">Decline</motion.button>
-                   </>
-                 )}
-                 {o.status === 'Accepted' && (
-                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Ready for Pickup')} className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-300 transition flex justify-center items-center gap-2"><PackageCheck className="w-5 h-5"/> Mark Ready for Pickup</motion.button>
-                 )}
-                 {o.status === 'Ready for Pickup' && (
-                    <p className="text-emerald-600 font-bold bg-emerald-50 w-full p-3 rounded-xl text-center border border-emerald-100">Customer Gate Pass Unlocked. Waiting safely at Exits.</p>
-                 )}
-               </div>
+              <div className="bg-slate-900/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 mb-4 max-h-32 overflow-auto shadow-inner">
+                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Customer Cart</p>
+                <ul className="text-sm text-slate-300 font-medium space-y-1">
+                  {o.items.map((i, idxx) => <li key={idxx}>• {i.quantity}x {i.name}</li>)}
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                {o.status === 'Pending' && (
+                  <>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Accepted')} className="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-300 transition flex justify-center items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Accept Order</motion.button>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Rejected')} className="px-6 py-3 bg-rose-50 text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition border border-rose-100">Decline</motion.button>
+                  </>
+                )}
+                {o.status === 'Accepted' && (
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => onUpdateStatus(o.orderId, 'Ready for Pickup')} className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-300 transition flex justify-center items-center gap-2"><PackageCheck className="w-5 h-5" /> Mark Ready for Pickup</motion.button>
+                )}
+                {o.status === 'Ready for Pickup' && (
+                  <p className="text-emerald-600 font-bold bg-emerald-50 w-full p-3 rounded-xl text-center border border-emerald-100">Customer Gate Pass Unlocked. Waiting safely at Exits.</p>
+                )}
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -202,26 +202,26 @@ function ShoppingHistory({ shopId }) {
     <div className="animate-in fade-in py-4">
       <h2 className="text-3xl font-black text-white mb-2">Shopping Log</h2>
       <p className="text-slate-400 font-medium mb-8">Real-time log of customer orders & payments.</p>
-      
+
       <div className="space-y-4">
         {history.map((order) => (
           <div key={order._id} className="bg-slate-800/50 border text-left p-6 rounded-3xl shadow-sm border-slate-700/50 flex justify-between items-center group hover:bg-slate-800/80 transition">
-             <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="font-mono font-bold text-slate-300 bg-slate-900/80 px-3 py-1 rounded-lg text-sm border border-slate-700">{order.orderIdString}</span>
-                  <span className={`px-3 py-1 font-bold text-xs rounded-full border ${order.status === 'Completed' ? 'bg-indigo-900/30 text-indigo-400 border-indigo-500/30' : 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30'}`}>
-                    {order.status}
-                  </span>
-                </div>
-                <p className="text-slate-500 text-sm font-medium mb-3">{new Date(order.createdAt).toLocaleString()}</p>
-                <div className="text-sm text-slate-300 font-bold max-w-md">
-                  {order.items.map(i => `${i.quantity}x ${i.name}`).join(' • ')}
-                </div>
-             </div>
-             <div className="text-right">
-                <p className="text-xs font-bold text-emerald-500/80 uppercase tracking-widest mb-1">Total Paid</p>
-                <p className="text-3xl font-black text-emerald-400">₹{order.total}</p>
-             </div>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="font-mono font-bold text-slate-300 bg-slate-900/80 px-3 py-1 rounded-lg text-sm border border-slate-700">{order.orderIdString}</span>
+                <span className={`px-3 py-1 font-bold text-xs rounded-full border ${order.status === 'Completed' ? 'bg-indigo-900/30 text-indigo-400 border-indigo-500/30' : 'bg-emerald-900/30 text-emerald-400 border-emerald-500/30'}`}>
+                  {order.status}
+                </span>
+              </div>
+              <p className="text-slate-500 text-sm font-medium mb-3">{new Date(order.createdAt).toLocaleString()}</p>
+              <div className="text-sm text-slate-300 font-bold max-w-md">
+                {order.items.map(i => `${i.quantity}x ${i.name}`).join(' • ')}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-bold text-emerald-500/80 uppercase tracking-widest mb-1">Total Paid</p>
+              <p className="text-3xl font-black text-emerald-400">₹{order.total}</p>
+            </div>
           </div>
         ))}
         {history.length === 0 && <div className="text-center py-10 font-bold text-slate-500">No trading history found.</div>}
@@ -235,15 +235,15 @@ function ShoppingHistory({ shopId }) {
 export default function Yatharth_ShopkeeperPickup() {
   const { authData, setAuthData, logout } = useMerchantAuth();
   const { activeOrders, updateOrderStatus } = useMerchantOrders(authData?.shopId);
-  const [chatModal, setChatModal] = useState(null); 
+  const [chatModal, setChatModal] = useState(null);
   const location = useLocation();
 
   if (!authData) return <AuthView onLogin={() => setAuthData({ token: localStorage.getItem('merchantToken'), shopId: localStorage.getItem('merchantShopId') })} />;
 
   const navItems = [
-    { name: 'Live Queue', path: '/merchant', icon: LayoutDashboard }, 
+    { name: 'Live Queue', path: '/merchant', icon: LayoutDashboard },
     { name: 'Shopping Log', path: '/merchant/history', icon: History },
-    { name: 'Gate Scanner', path: '/merchant/exit', icon: QrCode }, 
+    { name: 'Gate Scanner', path: '/merchant/exit', icon: QrCode },
     { name: 'Inventory DB', path: '/merchant/inventory', icon: PackageSearch },
     { name: 'Change Status', path: '/merchant/settings', icon: Edit }
   ];
@@ -262,7 +262,7 @@ export default function Yatharth_ShopkeeperPickup() {
               const Icon = item.icon;
               return (
                 <Link key={item.name} to={item.path} className={`flex items-center gap-3 px-4 py-3 lg:py-4 rounded-2xl font-bold transition-all ${isActive ? 'bg-indigo-600 border border-indigo-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'}`}>
-                  <Icon className={`w-5 h-5 shrink-0 ${isActive?'text-indigo-100':''}`} /> <span className="whitespace-nowrap">{item.name}</span>
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-indigo-100' : ''}`} /> <span className="whitespace-nowrap">{item.name}</span>
                   {item.name === 'Live Queue' && activeOrders.length > 0 && <span className="ml-2 lg:ml-auto w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center text-xs animate-bounce shrink-0">{activeOrders.length}</span>}
                 </Link>
               );

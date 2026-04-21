@@ -76,7 +76,7 @@ export default function Abhay_SmartScanner({ onClose, shopId }) {
                 <Upload className="w-8 h-8 text-indigo-500" />
               </div>
               <span className="font-bold text-slate-800 text-lg">Tap to upload picture</span>
-              <span className="text-slate-400 text-sm mt-2 font-medium">JPG, PNG strictly under 2MB</span>
+              <span className="text-slate-400 text-sm mt-2 font-medium">JPG, PNG strictly under 10MB</span>
               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
             </label>
           ) : (

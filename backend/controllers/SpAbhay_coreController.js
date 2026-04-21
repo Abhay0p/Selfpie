@@ -142,7 +142,8 @@ export const generateCheckout = async (req, res) => {
     res.json({ success: true, orderId: orderIdString, razorpayOrderId: rzpOrder.id });
   } catch (error) {
     console.error('Order generation error:', error);
-    res.status(500).json({ success: false, message: 'Order generation failed' });
+    const errorMsg = error?.error?.description || error.message || 'Order generation failed';
+    res.status(500).json({ success: false, message: 'Order generation failed: ' + errorMsg });
   }
 };
 
@@ -245,5 +246,13 @@ export const getActiveOrder = async (req, res) => {
     res.json({ success: true, data: { ...order.toObject(), estPrepTime: shop.prepTime || 15, shopName: shop.shopName } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to retrieve active order.' });
+  }
+};
+
+export const getRazorpayKey = (req, res) => {
+  if (process.env.RAZORPAY_KEY_ID) {
+    res.json({ success: true, keyId: process.env.RAZORPAY_KEY_ID });
+  } else {
+    res.status(404).json({ success: false, message: 'Razorpay key not configured on server' });
   }
 };
