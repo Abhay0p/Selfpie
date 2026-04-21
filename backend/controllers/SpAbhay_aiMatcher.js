@@ -24,7 +24,7 @@ export const matchListWithAI = async (imageBuffer, inventory, mimeType = 'image/
   
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents: [
         `You are a brilliant multi-lingual grocery store AI assistant. An imperfect human has uploaded a picture of their handwritten shopping list. 
          The handwriting might be incredibly messy, cursive, scribbled, and written in multiple languages (English, Hindi, Hinglish slangs like "Aata", "Chawal", "Doodh", etc.).
