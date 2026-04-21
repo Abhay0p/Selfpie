@@ -115,7 +115,7 @@ export const matchAIList = async (req, res) => {
     res.json({ success: true, data: matchedItems });
   } catch (error) {
     console.error('AI Match Error:', error);
-    res.status(500).json({ success: false, message: 'AI processing failed' });
+    res.status(500).json({ success: false, message: error.message || 'AI processing failed' });
   }
 };
 
